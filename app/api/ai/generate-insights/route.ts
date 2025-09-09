@@ -84,43 +84,14 @@ const generateAIInsights = (candidateName: string, votersData: any[]) => {
 };
 
 export async function POST(request: NextRequest) {
-  // SUPER EARLY BUILD DETECTION - Return immediately without ANY processing
   try {
-    if (
-      !request || 
-      typeof process !== 'undefined' && (
-        process.env.VERCEL_ENV === 'preview' || 
-        process.env.CI === 'true' ||
-        process.env.NEXT_PHASE === 'phase-production-build' ||
-        process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL ||
-        process.env.VERCEL === '1'
-      )
-    ) {
-      return new Response(JSON.stringify({ 
+    // Build time safety check
+    if (!prisma || typeof prisma.user === 'undefined') {
+      return NextResponse.json({ 
         success: true, 
         message: 'Build time - route not available',
         insights: []
-      }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      });
-    }
-  } catch (buildError) {
-    return new Response(JSON.stringify({ 
-      success: true, 
-      message: 'Build error handled',
-      insights: []
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-
-  // Wrap entire function in try-catch to prevent build failures
-  try {
-    // Additional safety check
-    if (!request?.cookies) {
-      return NextResponse.json({ success: true, insights: [] }, { status: 200 });
+      }, { status: 200 });
     }
 
     const token = request.cookies.get('auth_token')?.value;
