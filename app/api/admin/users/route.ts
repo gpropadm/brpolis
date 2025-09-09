@@ -1,18 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import AuthService from '@/lib/auth';
+import authService from '@/lib/auth';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 // Middleware para verificar se é admin
 async function checkAdminAuth(request: NextRequest) {
-  const token = request.cookies.get('auth-token')?.value;
+  const token = request.cookies.get('auth_token')?.value;
   
   if (!token) {
     return { authorized: false, error: 'Token não fornecido' };
   }
 
-  const result = await AuthService.verifyToken(token);
+  const result = await authService.verifyToken(token);
   
   if (!result.valid || !result.user) {
     return { authorized: false, error: 'Token inválido' };
@@ -177,7 +177,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const result = await AuthService.createUser({
+    const result = await authService.createUser({
       email,
       password,
       name,
