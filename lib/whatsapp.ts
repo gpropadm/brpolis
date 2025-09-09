@@ -418,10 +418,10 @@ export class WhatsAppService {
     // Remover caracteres não numéricos
     const cleanPhone = phone.replace(/\D/g, '');
     
-    // Validar formato brasileiro: 5511999999999 (com código do país)
-    const brazilianPattern = /^55\d{10,11}$/;
+    // Validar formato brasileiro: aceitar com ou sem código do país
+    const brazilianPattern = /^(55)?(\d{10,11})$/;
     
-    return brazilianPattern.test(cleanPhone);
+    return brazilianPattern.test(cleanPhone) && cleanPhone.length >= 10;
   }
 
   /**
