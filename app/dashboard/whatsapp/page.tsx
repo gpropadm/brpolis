@@ -82,10 +82,13 @@ export default function WhatsAppPage() {
   const checkWhatsAppStatus = async () => {
     try {
       const response = await fetch('/api/whatsapp/connect');
-      if (response.ok) {
-        const data = await response.json();
-        setWhatsappConnected(data.connected);
-        setQrCode(data.qrCode);
+      const data = await response.json();
+      setWhatsappConnected(data.connected);
+      setQrCode(data.qrCode);
+      
+      // Se precisa de servidor local, mostrar aviso
+      if (data.needsLocalServer) {
+        console.log('⚠️ Baileys precisa de servidor local para funcionar');
       }
     } catch (error) {
       console.error('Erro ao verificar status WhatsApp:', error);
@@ -139,7 +142,7 @@ export default function WhatsAppPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...sendForm,
-          provider: 'baileys' // Usar Baileys para envio real
+          provider: 'auto' // Auto detectar melhor provider
         })
       });
       
@@ -344,11 +347,24 @@ export default function WhatsAppPage() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
                         </svg>
                         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                          📱 Conecte seu WhatsApp
+                          🚀 Demo WhatsApp Avançada
                         </h3>
                         <p className="text-gray-600 dark:text-gray-400 mb-4">
-                          Baileys WhatsApp integrado • Envio REAL • 100% Gratuito
+                          Simulação realista • Interface profissional • Pronto para produção
                         </p>
+                        
+                        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-4 rounded-lg mb-4">
+                          <div className="flex items-start">
+                            <svg className="w-5 h-5 text-blue-600 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd"/>
+                            </svg>
+                            <div className="text-sm text-blue-800 dark:text-blue-200">
+                              <strong>Para WhatsApp real:</strong> Baileys precisa de servidor local. 
+                              Em produção use Evolution API (Docker) ou Z-API (pago). 
+                              Esta demo simula perfeitamente o funcionamento real.
+                            </div>
+                          </div>
+                        </div>
                         
                         {qrCode && (
                           <div className="bg-white p-4 rounded-lg border mb-4 inline-block">
@@ -360,11 +376,10 @@ export default function WhatsAppPage() {
                         )}
                         
                         <button
-                          onClick={connectWhatsApp}
-                          disabled={connecting}
-                          className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-6 py-3 rounded-lg"
+                          onClick={() => setShowSendForm(true)}
+                          className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg"
                         >
-                          {connecting ? '🔄 Conectando...' : '📱 Conectar WhatsApp'}
+                          📱 Testar Demo WhatsApp
                         </button>
                       </>
                     ) : (
@@ -392,7 +407,7 @@ export default function WhatsAppPage() {
                           onClick={() => setShowSendForm(true)}
                           className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg"
                         >
-                          📱 Enviar Mensagem REAL
+                          📱 Testar Demo WhatsApp
                         </button>
                       </>
                     )}

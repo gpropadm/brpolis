@@ -84,9 +84,14 @@ export class WhatsAppService {
    */
   async sendMessage(data: SendMessageData): Promise<WhatsAppResponse> {
     try {
-      // Tentar Baileys primeiro para envio REAL
-      if (data.provider === 'baileys' || data.provider === 'auto') {
+      // Baileys só funciona em ambiente local (não no Vercel)
+      if (data.provider === 'baileys' && typeof window === 'undefined') {
         try {
+          // Verificar se estamos em ambiente que suporta Baileys
+          if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+            throw new Error('Baileys not supported in serverless environment');
+          }
+          
           const BaileysService = (await import('./baileys-service')).default;
           const result = await BaileysService.sendMessage({
             to: data.to,
@@ -102,7 +107,7 @@ export class WhatsAppService {
             };
           }
         } catch (error) {
-          console.log('Baileys não disponível, usando fallback');
+          console.log('Baileys não disponível no Vercel, usando simulação');
         }
       }
 

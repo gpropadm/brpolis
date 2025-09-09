@@ -14,6 +14,15 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    // Baileys não funciona no Vercel (serverless)
+    if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+      return NextResponse.json({
+        success: false,
+        error: 'Baileys WhatsApp só funciona em ambiente local. Para produção use Evolution API ou Z-API.',
+        needsLocalServer: true
+      }, { status: 400 });
+    }
+
     // Dynamic import para evitar erros durante build
     const BaileysService = (await import('@/lib/baileys-service')).default;
     
@@ -46,6 +55,16 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    // Baileys não funciona no Vercel (serverless)
+    if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+      return NextResponse.json({
+        success: false,
+        connected: false,
+        error: 'Baileys WhatsApp só funciona em ambiente local. Para produção use Evolution API.',
+        needsLocalServer: true
+      });
+    }
+
     // Dynamic import para evitar erros durante build
     const BaileysService = (await import('@/lib/baileys-service')).default;
     
@@ -63,7 +82,8 @@ export async function GET(request: NextRequest) {
     console.error('❌ Erro ao verificar status WhatsApp:', error);
     return NextResponse.json({
       success: false,
+      connected: false,
       error: 'Erro interno do servidor'
-    }, { status: 500 });
+    });
   }
 }
