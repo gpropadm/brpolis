@@ -1,16 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import AuthService from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
-  // Build time check
-  if (process.env.VERCEL_ENV && !process.env.DATABASE_URL && !process.env.POSTGRES_URL_NO_SSL) {
+  // Build time check - return immediately if likely build time
+  if (!process.env.DATABASE_URL && !process.env.POSTGRES_URL_NO_SSL && !process.env.PGDATABASE) {
     return NextResponse.json(
-      { success: false, error: 'Build time - login not available' },
-      { status: 200 }
+      { success: false, error: 'Database not available' },
+      { status: 503 }
     );
   }
 
+  // Dynamic import para evitar erros durante build
   try {
+    const AuthService = (await import('@/lib/auth')).default;
+    
     const { email, password } = await request.json();
 
     if (!email || !password) {

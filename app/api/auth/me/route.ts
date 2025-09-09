@@ -1,20 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
-import authService from '@/lib/auth';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
-  // Build time check
-  if (process.env.VERCEL_ENV && !process.env.DATABASE_URL) {
+  // Build time check - return immediately if likely build time
+  if (!process.env.DATABASE_URL && !process.env.POSTGRES_URL_NO_SSL && !process.env.PGDATABASE) {
     return NextResponse.json(
-      { success: false, error: 'Build time - auth not available' },
-      { status: 401 }
+      { success: false, error: 'Database not available' },
+      { status: 503 }
     );
   }
 
+  // Dynamic import para evitar erros durante build
   try {
+    const authService = (await import('@/lib/auth')).default;
+    
     const token = request.cookies.get('auth_token')?.value;
 
     if (!token) {
