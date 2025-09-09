@@ -33,6 +33,7 @@ export async function GET(request: NextRequest) {
         status: true,
         score: true,
         city: true,
+        state: true,
         neighborhood: true,
         zone: true,
         section: true,
@@ -77,12 +78,12 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, email, phone, cpf, status, score, city, neighborhood, zone, section, interests } = body;
+    const { name, email, phone, cpf, status, score, city, state, neighborhood, zone, section, interests } = body;
 
     // Validações básicas
-    if (!name || !email || !phone) {
+    if (!name || !email || !phone || !city || !state) {
       return NextResponse.json({ 
-        error: 'Nome, email e telefone são obrigatórios' 
+        error: 'Nome, email, telefone, cidade e estado são obrigatórios' 
       }, { status: 400 });
     }
 
@@ -109,7 +110,8 @@ export async function POST(request: NextRequest) {
         cpf: cpf || null,
         status: status || 'POTENTIAL',
         score: score || 50,
-        city: city || '',
+        city,
+        state,
         neighborhood: neighborhood || '',
         zone: zone || '',
         section: section || '',

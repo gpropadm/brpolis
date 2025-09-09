@@ -83,13 +83,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Token inválido' }, { status: 401 });
     }
 
+    const userId = authResult.user.id;
+
     // Buscar dados para gerar insights personalizados
     const [user, voters] = await Promise.all([
       prisma.user.findUnique({
-        where: { id: authResult.user.id }
+        where: { id: userId }
       }),
       prisma.voter.findMany({
-        where: { candidateId: authResult.user.id },
+        where: { candidateId: userId },
         select: { status: true, score: true, interests: true }
       })
     ]);
@@ -106,7 +108,7 @@ export async function POST(request: NextRequest) {
       newInsights.map(insight =>
         prisma.aIInsight.create({
           data: {
-            candidateId: authResult.user.id,
+            candidateId: userId,
             type: insight.type,
             title: insight.title,
             content: insight.content,
