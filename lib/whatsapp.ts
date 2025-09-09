@@ -27,7 +27,7 @@ interface SendMessageData {
   templateName?: string;
   templateLanguage?: string;
   templateComponents?: any[];
-  provider?: 'meta' | 'evolution' | 'zapi' | 'auto'; // Escolher provider
+  provider?: 'meta' | 'evolution' | 'zapi' | 'baileys' | 'auto'; // Escolher provider
 }
 
 interface WhatsAppResponse {
@@ -84,6 +84,28 @@ export class WhatsAppService {
    */
   async sendMessage(data: SendMessageData): Promise<WhatsAppResponse> {
     try {
+      // Tentar Baileys primeiro para envio REAL
+      if (data.provider === 'baileys' || data.provider === 'auto') {
+        try {
+          const BaileysService = (await import('./baileys-service')).default;
+          const result = await BaileysService.sendMessage({
+            to: data.to,
+            text: data.text
+          });
+          
+          if (result.success) {
+            return {
+              success: true,
+              messageId: result.messageId,
+              status: 'sent',
+              provider: 'baileys'
+            };
+          }
+        } catch (error) {
+          console.log('Baileys não disponível, usando fallback');
+        }
+      }
+
       // Para demonstração: simular envio REALISTA
       if (process.env.NODE_ENV === 'development') {
         return this.simulateRealisticMessage(data);

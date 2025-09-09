@@ -35,6 +35,9 @@ export default function WhatsAppPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('messages');
   const [showSendForm, setShowSendForm] = useState(false);
+  const [whatsappConnected, setWhatsappConnected] = useState(false);
+  const [qrCode, setQrCode] = useState<string | null>(null);
+  const [connecting, setConnecting] = useState(false);
   const [sendForm, setSendForm] = useState({
     recipients: '',
     template: '',
@@ -44,6 +47,7 @@ export default function WhatsAppPage() {
 
   useEffect(() => {
     fetchData();
+    checkWhatsAppStatus();
   }, []);
 
   const fetchData = async () => {
@@ -75,6 +79,57 @@ export default function WhatsAppPage() {
     }
   };
 
+  const checkWhatsAppStatus = async () => {
+    try {
+      const response = await fetch('/api/whatsapp/connect');
+      if (response.ok) {
+        const data = await response.json();
+        setWhatsappConnected(data.connected);
+        setQrCode(data.qrCode);
+      }
+    } catch (error) {
+      console.error('Erro ao verificar status WhatsApp:', error);
+    }
+  };
+
+  const connectWhatsApp = async () => {
+    setConnecting(true);
+    try {
+      const response = await fetch('/api/whatsapp/connect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setQrCode(data.qrCode);
+        
+        // Verificar status periodicamente
+        const interval = setInterval(async () => {
+          await checkWhatsAppStatus();
+          const statusResponse = await fetch('/api/whatsapp/connect');
+          const statusData = await statusResponse.json();
+          
+          if (statusData.connected) {
+            setWhatsappConnected(true);
+            setQrCode(null);
+            clearInterval(interval);
+            setConnecting(false);
+          }
+        }, 3000);
+        
+        // Limpar interval após 60 segundos
+        setTimeout(() => {
+          clearInterval(interval);
+          setConnecting(false);
+        }, 60000);
+      }
+    } catch (error) {
+      console.error('Erro ao conectar WhatsApp:', error);
+      setConnecting(false);
+    }
+  };
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -82,7 +137,10 @@ export default function WhatsAppPage() {
       const response = await fetch('/api/whatsapp/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(sendForm)
+        body: JSON.stringify({
+          ...sendForm,
+          provider: 'baileys' // Usar Baileys para envio real
+        })
       });
       
       if (response.ok) {
@@ -280,31 +338,64 @@ export default function WhatsAppPage() {
                   </div>
                 ) : messages.length === 0 ? (
                   <div className="text-center py-8">
-                    <svg className="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                    </svg>
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                      🚀 Sistema WhatsApp PRONTO!
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-400 mb-4">
-                      Evolution API integrada • Demo realista funcionando • Pronta para produção
-                    </p>
-                    <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-4 rounded-lg mb-4">
-                      <div className="flex items-center">
-                        <svg className="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                    {!whatsappConnected ? (
+                      <>
+                        <svg className="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
                         </svg>
-                        <span className="text-green-800 dark:text-green-200 font-medium">
-                          WhatsApp integrado via Evolution API
-                        </span>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => setShowSendForm(true)}
-                      className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg"
-                    >
-                      📱 Criar Primeira Campanha
-                    </button>
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                          📱 Conecte seu WhatsApp
+                        </h3>
+                        <p className="text-gray-600 dark:text-gray-400 mb-4">
+                          Baileys WhatsApp integrado • Envio REAL • 100% Gratuito
+                        </p>
+                        
+                        {qrCode && (
+                          <div className="bg-white p-4 rounded-lg border mb-4 inline-block">
+                            <img src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrCode)}`} 
+                                 alt="QR Code WhatsApp" 
+                                 className="w-48 h-48" />
+                            <p className="text-sm text-gray-600 mt-2">Escaneie com seu WhatsApp</p>
+                          </div>
+                        )}
+                        
+                        <button
+                          onClick={connectWhatsApp}
+                          disabled={connecting}
+                          className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-6 py-3 rounded-lg"
+                        >
+                          {connecting ? '🔄 Conectando...' : '📱 Conectar WhatsApp'}
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-12 h-12 text-green-400 mx-auto mb-4" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.479 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+                        </svg>
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                          ✅ WhatsApp Conectado!
+                        </h3>
+                        <p className="text-gray-600 dark:text-gray-400 mb-4">
+                          Pronto para enviar mensagens REAIS via Baileys
+                        </p>
+                        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-4 rounded-lg mb-4">
+                          <div className="flex items-center justify-center">
+                            <svg className="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                            </svg>
+                            <span className="text-green-800 dark:text-green-200 font-medium">
+                              WhatsApp conectado via Baileys
+                            </span>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => setShowSendForm(true)}
+                          className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg"
+                        >
+                          📱 Enviar Mensagem REAL
+                        </button>
+                      </>
+                    )}
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
