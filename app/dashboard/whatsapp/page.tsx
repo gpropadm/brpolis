@@ -81,37 +81,47 @@ export default function WhatsAppPage() {
 
   const checkWhatsAppStatus = async () => {
     try {
-      // Verificar Evolution API local primeiro
-      const localResponse = await fetch('http://localhost:8080/instance/connectionState/brpolis-campaign');
-      if (localResponse.ok) {
-        const localData = await localResponse.json();
-        const isConnected = localData.connectionStatus?.state === 'open';
+      // Verificar Z-API primeiro
+      const zapiResponse = await fetch(`https://api.z-api.io/instances/3E6FD6EF2451C0253BF61256C14AB051/token/42F3B8BA78AC0BDBE88FEF20/status`, {
+        headers: {
+          'Client-Token': '42F3B8BA78AC0BDBE88FEF20'
+        }
+      });
+      
+      if (zapiResponse.ok) {
+        const zapiData = await zapiResponse.json();
+        const isConnected = zapiData.connected === true;
         setWhatsappConnected(isConnected);
         
         if (!isConnected) {
-          // Gerar novo QR se não conectado
-          const qrResponse = await fetch('http://localhost:8080/instance/create', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ instanceName: 'brpolis-campaign', qrcode: true })
+          // Gerar QR Code Z-API
+          const qrResponse = await fetch(`https://api.z-api.io/instances/3E6FD6EF2451C0253BF61256C14AB051/token/42F3B8BA78AC0BDBE88FEF20/qr-code`, {
+            headers: {
+              'Client-Token': '42F3B8BA78AC0BDBE88FEF20'
+            }
           });
           if (qrResponse.ok) {
             const qrData = await qrResponse.json();
-            setQrCode(qrData.qrcode?.code);
+            setQrCode(qrData.value);
           }
         }
         return;
       }
       
-      // Fallback para API interna
+      // Fallback para Evolution API local
+      const localResponse = await fetch('http://localhost:8080/instance/connectionState/brpolis-campaign');
+      if (localResponse.ok) {
+        const localData = await localResponse.json();
+        const isConnected = localData.connectionStatus?.state === 'open';
+        setWhatsappConnected(isConnected);
+        return;
+      }
+      
+      // Fallback final para API interna
       const response = await fetch('/api/whatsapp/connect');
       const data = await response.json();
       setWhatsappConnected(data.connected);
       setQrCode(data.qrCode);
-      
-      if (data.needsLocalServer) {
-        console.log('⚠️ Baileys precisa de servidor local para funcionar');
-      }
     } catch (error) {
       console.error('Erro ao verificar status WhatsApp:', error);
     }
@@ -159,7 +169,6 @@ export default function WhatsAppPage() {
     e.preventDefault();
     
     try {
-      // Enviar via Evolution API local primeiro
       const recipients = sendForm.recipients.split('\n').filter(r => r.trim());
       const results = [];
       
@@ -167,7 +176,26 @@ export default function WhatsAppPage() {
         const cleanNumber = recipient.trim().replace(/\D/g, '');
         if (cleanNumber.length >= 10) {
           try {
-            const response = await fetch(`http://localhost:8080/message/sendText/brpolis-campaign`, {
+            // Tentar Z-API primeiro
+            const zapiResponse = await fetch(`https://api.z-api.io/instances/3E6FD6EF2451C0253BF61256C14AB051/token/42F3B8BA78AC0BDBE88FEF20/send-text`, {
+              method: 'POST',
+              headers: { 
+                'Content-Type': 'application/json',
+                'Client-Token': '42F3B8BA78AC0BDBE88FEF20'
+              },
+              body: JSON.stringify({
+                phone: `55${cleanNumber}`,
+                message: sendForm.message
+              })
+            });
+            
+            if (zapiResponse.ok) {
+              results.push({ number: cleanNumber, success: true, provider: 'Z-API' });
+              continue;
+            }
+            
+            // Fallback para Evolution API local
+            const evolutionResponse = await fetch(`http://localhost:8080/message/sendText/brpolis-campaign`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -176,27 +204,27 @@ export default function WhatsAppPage() {
               })
             });
             
-            if (response.ok) {
-              results.push({ number: cleanNumber, success: true });
+            if (evolutionResponse.ok) {
+              results.push({ number: cleanNumber, success: true, provider: 'Evolution' });
             } else {
-              results.push({ number: cleanNumber, success: false });
+              results.push({ number: cleanNumber, success: false, provider: 'None' });
             }
           } catch (err) {
-            results.push({ number: cleanNumber, success: false });
+            results.push({ number: cleanNumber, success: false, provider: 'Error' });
           }
         }
       }
       
       console.log('Resultados do envio:', results);
       
-      // Fallback para API interna se Evolution local falhar
+      // Fallback para API interna se todos falharem
       if (results.every(r => !r.success)) {
         const response = await fetch('/api/whatsapp/send', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             ...sendForm,
-            provider: 'evolution'
+            provider: 'zapi'
           })
         });
         
