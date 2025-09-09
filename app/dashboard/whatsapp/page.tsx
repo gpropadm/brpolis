@@ -84,7 +84,7 @@ export default function WhatsAppPage() {
       // Verificar Z-API primeiro
       const zapiResponse = await fetch(`https://api.z-api.io/instances/3E6FD6EF2451C0253BF61256C14AB051/token/42F3B8BA78AC0BDBE88FEF20/status`, {
         headers: {
-          'Client-Token': '42F3B8BA78AC0BDBE88FEF20'
+          'Client-Token': 'F97cfb1e9cc2e45f18342a5fe93b00aa0S'
         }
       });
       
@@ -97,7 +97,7 @@ export default function WhatsAppPage() {
           // Gerar QR Code Z-API
           const qrResponse = await fetch(`https://api.z-api.io/instances/3E6FD6EF2451C0253BF61256C14AB051/token/42F3B8BA78AC0BDBE88FEF20/qr-code`, {
             headers: {
-              'Client-Token': '42F3B8BA78AC0BDBE88FEF20'
+              'Client-Token': 'F97cfb1e9cc2e45f18342a5fe93b00aa0S'
             }
           });
           if (qrResponse.ok) {
@@ -181,7 +181,7 @@ export default function WhatsAppPage() {
               method: 'POST',
               headers: { 
                 'Content-Type': 'application/json',
-                'Client-Token': '42F3B8BA78AC0BDBE88FEF20'
+                'Client-Token': 'F97cfb1e9cc2e45f18342a5fe93b00aa0S'
               },
               body: JSON.stringify({
                 phone: `55${cleanNumber}`,
