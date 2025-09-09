@@ -20,24 +20,42 @@ try {
 
 // Middleware para verificar se é admin
 async function checkAdminAuth(request: NextRequest) {
+  // Build-time protection - don't verify tokens during build
+  if (
+    typeof process !== 'undefined' && (
+      process.env.VERCEL_ENV === 'preview' || 
+      process.env.CI === 'true' ||
+      process.env.NEXT_PHASE === 'phase-production-build' ||
+      process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL ||
+      process.env.VERCEL === '1'
+    )
+  ) {
+    return { authorized: false, error: 'Build time - auth not available' };
+  }
+
   const token = request.cookies.get('auth_token')?.value;
   
   if (!token) {
     return { authorized: false, error: 'Token não fornecido' };
   }
 
-  const result = await authService.verifyToken(token);
-  
-  if (!result.valid || !result.user) {
-    return { authorized: false, error: 'Token inválido' };
-  }
+  try {
+    const result = await authService.verifyToken(token);
+    
+    if (!result.valid || !result.user) {
+      return { authorized: false, error: 'Token inválido' };
+    }
 
-  // Verificar se é admin ou super admin
-  if (!['ADMIN', 'SUPER_ADMIN'].includes(result.user.role)) {
-    return { authorized: false, error: 'Acesso negado. Apenas administradores.' };
-  }
+    // Verificar se é admin ou super admin
+    if (!['ADMIN', 'SUPER_ADMIN'].includes(result.user.role)) {
+      return { authorized: false, error: 'Acesso negado. Apenas administradores.' };
+    }
 
-  return { authorized: true, user: result.user };
+    return { authorized: true, user: result.user };
+  } catch (authError) {
+    console.error('Auth error during build:', authError);
+    return { authorized: false, error: 'Auth service not available' };
+  }
 }
 
 // GET - Listar usuários (apenas admins)
