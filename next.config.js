@@ -13,6 +13,9 @@ const nextConfig = {
     GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAPS_API_KEY,
     WHATSAPP_ACCESS_TOKEN: process.env.WHATSAPP_ACCESS_TOKEN,
     WHATSAPP_PHONE_NUMBER_ID: process.env.WHATSAPP_PHONE_NUMBER_ID,
+    EVOLUTION_API_URL: process.env.EVOLUTION_API_URL,
+    EVOLUTION_API_KEY: process.env.EVOLUTION_API_KEY,
+    EVOLUTION_INSTANCE_NAME: process.env.EVOLUTION_INSTANCE_NAME,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
   },
   webpack: (config, { isServer }) => {

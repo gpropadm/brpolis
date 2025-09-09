@@ -1,0 +1,151 @@
+# 🏛️ BRPolis - Docker Compose (Next.js + Evolution API)
+
+version: '3.8'
+
+services:
+  # BRPolis Next.js Application
+  brpolis-app:
+    build: .
+    container_name: brpolis-app
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://brpolis:brpolis123@postgres:5432/brpolis_prod
+      - JWT_SECRET=brpolis_super_secret_jwt_key_change_in_production
+      - WHATSAPP_ACCESS_TOKEN=${WHATSAPP_ACCESS_TOKEN:-}
+      - WHATSAPP_PHONE_NUMBER_ID=${WHATSAPP_PHONE_NUMBER_ID:-}
+      - EVOLUTION_API_URL=http://evolution-api:8080
+      - EVOLUTION_API_KEY=${EVOLUTION_API_KEY:-B6D711FCDE4D4FD5936544120E713976}
+      - EVOLUTION_INSTANCE_NAME=brpolis-campaign
+    depends_on:
+      - postgres
+      - redis
+      - evolution-api
+    networks:
+      - brpolis-network
+    restart: unless-stopped
+
+  # Evolution API para WhatsApp
+  evolution-api:
+    image: davidsongomes/evolution-api:v2.0.0
+    container_name: evolution-api
+    ports:
+      - "8080:8080"
+    environment:
+      - SERVER_TYPE=http
+      - SERVER_PORT=8080
+      - CORS_ORIGIN=*
+      - CORS_METHODS=POST,GET,PUT,DELETE
+      - CORS_CREDENTIALS=true
+      - LOG_LEVEL=ERROR,WARN,DEBUG,INFO,LOG,VERBOSE,DARK,WEBHOOKS
+      - LOG_COLOR=true
+      - LOG_BAILEYS=false
+      
+      # Database
+      - DATABASE_ENABLED=true
+      - DATABASE_CONNECTION_URI=postgresql://evolution:evolution123@postgres:5432/evolution
+      - DATABASE_CONNECTION_CLIENT_NAME=evolution_db
+      
+      # Redis
+      - REDIS_ENABLED=true
+      - REDIS_URI=redis://redis:6379
+      - REDIS_PREFIX_KEY=evolution
+      
+      # Authentication
+      - AUTHENTICATION_TYPE=apikey
+      - AUTHENTICATION_API_KEY=${EVOLUTION_API_KEY:-B6D711FCDE4D4FD5936544120E713976}
+      - AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES=true
+      
+      # Instance
+      - CONFIG_SESSION_PHONE_CLIENT=BRPolis
+      - CONFIG_SESSION_PHONE_NAME=Chrome
+      
+      # QR Code
+      - QRCODE_LIMIT=10
+      - QRCODE_COLOR=#198754
+      
+      # Webhooks
+      - WEBHOOK_GLOBAL_ENABLED=false
+      - WEBHOOK_GLOBAL_URL=http://brpolis-app:3000/api/webhooks/evolution
+      - WEBHOOK_GLOBAL_WEBHOOK_BY_EVENTS=false
+      
+      # Typebot
+      - TYPEBOT_ENABLED=false
+      
+      # Chatwoot
+      - CHATWOOT_ENABLED=false
+      
+      # Storage
+      - S3_ENABLED=false
+      - MINIO_ENABLED=false
+      
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - brpolis-network
+    volumes:
+      - evolution_instances:/evolution/instances
+      - evolution_store:/evolution/store
+    restart: unless-stopped
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: brpolis-postgres
+    environment:
+      - POSTGRES_DB=brpolis_prod
+      - POSTGRES_USER=brpolis
+      - POSTGRES_PASSWORD=brpolis123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-multiple-databases.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh
+    networks:
+      - brpolis-network
+    restart: unless-stopped
+
+  # Redis for caching and session management
+  redis:
+    image: redis:7-alpine
+    container_name: brpolis-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --requirepass redis123
+    networks:
+      - brpolis-network
+    restart: unless-stopped
+
+  # Adminer - Database administration
+  adminer:
+    image: adminer:latest
+    container_name: brpolis-adminer
+    ports:
+      - "8081:8080"
+    environment:
+      - ADMINER_DEFAULT_SERVER=postgres
+    depends_on:
+      - postgres
+    networks:
+      - brpolis-network
+    restart: unless-stopped
+
+# Networks
+networks:
+  brpolis-network:
+    driver: bridge
+
+# Volumes
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  evolution_instances:
+    driver: local
+  evolution_store:
+    driver: local
