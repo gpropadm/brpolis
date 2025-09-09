@@ -84,10 +84,10 @@ export class WhatsAppService {
    */
   async sendMessage(data: SendMessageData): Promise<WhatsAppResponse> {
     try {
-      // Em desenvolvimento, simular envio
-      if (process.env.NODE_ENV === 'development') {
-        return this.simulateMessage(data);
-      }
+      // Em desenvolvimento, simular envio (comentado para teste real)
+      // if (process.env.NODE_ENV === 'development') {
+      //   return this.simulateMessage(data);
+      // }
 
       // Escolher provider automaticamente ou usar especificado
       const provider = await this.chooseProvider(data.provider);
@@ -266,12 +266,7 @@ export class WhatsAppService {
       return preferredProvider;
     }
 
-    // Lógica automática: priorizar Z-API se configurado
-    if (this.zapiConfig.instanceId && this.zapiConfig.token) {
-      return 'zapi';
-    }
-
-    // Fallback Evolution se configurado e ativo
+    // Lógica automática: priorizar Evolution se configurado e ativo
     if (this.evolutionConfig.apiKey && this.evolutionConfig.apiUrl) {
       const evolutionStatus = await this.checkEvolutionStatus();
       if (evolutionStatus) {
@@ -279,13 +274,18 @@ export class WhatsAppService {
       }
     }
 
+    // Fallback Z-API se configurado
+    if (this.zapiConfig.instanceId && this.zapiConfig.token) {
+      return 'zapi';
+    }
+
     // Fallback para Meta se configurado
     if (this.config.accessToken && this.config.phoneNumberId) {
       return 'meta';
     }
 
-    // Padrão Z-API
-    return 'zapi';
+    // Padrão Evolution
+    return 'evolution';
   }
 
   /**

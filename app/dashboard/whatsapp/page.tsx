@@ -131,7 +131,7 @@ export default function WhatsAppPage() {
           <div className="flex justify-between items-center py-6">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white">WhatsApp Enterprise</h1>
-              <p className="text-gray-600 dark:text-gray-400">Envie mensagens reais via Z-API • Pronto para produção</p>
+              <p className="text-gray-600 dark:text-gray-400">Envie mensagens reais via Evolution API • 100% Gratuito</p>
             </div>
             <div className="flex space-x-3">
               <Link href="/dashboard" className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg">
@@ -287,8 +287,15 @@ export default function WhatsAppPage() {
                       Pronto para enviar mensagens REAIS
                     </h3>
                     <p className="text-gray-600 dark:text-gray-400 mb-4">
-                      Configure suas credenciais Z-API no .env.local e teste com números reais
+                      Evolution API configurada! Execute o comando abaixo para conectar WhatsApp
                     </p>
+                    <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-4">
+                      <code className="text-sm">
+                        docker run -d --name evolution-api -p 8080:8080 \\<br/>
+                        &nbsp;&nbsp;-e AUTHENTICATION_API_KEY="B6D711FCDE4D4FD5936544120E713976" \\<br/>
+                        &nbsp;&nbsp;davidsongomes/evolution-api:latest
+                      </code>
+                    </div>
                     <button
                       onClick={() => setShowSendForm(true)}
                       className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg"
