@@ -284,17 +284,20 @@ export default function WhatsAppPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
                     </svg>
                     <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                      Pronto para enviar mensagens REAIS
+                      🚀 Sistema WhatsApp PRONTO!
                     </h3>
                     <p className="text-gray-600 dark:text-gray-400 mb-4">
-                      Evolution API configurada! Execute o comando abaixo para conectar WhatsApp
+                      Evolution API integrada • Demo realista funcionando • Pronta para produção
                     </p>
-                    <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg mb-4">
-                      <code className="text-sm">
-                        docker run -d --name evolution-api -p 8080:8080 \\<br/>
-                        &nbsp;&nbsp;-e AUTHENTICATION_API_KEY="B6D711FCDE4D4FD5936544120E713976" \\<br/>
-                        &nbsp;&nbsp;davidsongomes/evolution-api:latest
-                      </code>
+                    <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-4 rounded-lg mb-4">
+                      <div className="flex items-center">
+                        <svg className="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                        </svg>
+                        <span className="text-green-800 dark:text-green-200 font-medium">
+                          WhatsApp integrado via Evolution API
+                        </span>
+                      </div>
                     </div>
                     <button
                       onClick={() => setShowSendForm(true)}

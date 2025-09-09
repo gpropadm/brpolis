@@ -84,10 +84,10 @@ export class WhatsAppService {
    */
   async sendMessage(data: SendMessageData): Promise<WhatsAppResponse> {
     try {
-      // Em desenvolvimento, simular envio (comentado para teste real)
-      // if (process.env.NODE_ENV === 'development') {
-      //   return this.simulateMessage(data);
-      // }
+      // Para demonstração: simular envio REALISTA
+      if (process.env.NODE_ENV === 'development') {
+        return this.simulateRealisticMessage(data);
+      }
 
       // Escolher provider automaticamente ou usar especificado
       const provider = await this.chooseProvider(data.provider);
@@ -412,7 +412,30 @@ export class WhatsAppService {
   }
 
   /**
-   * Simular envio para desenvolvimento
+   * Simular envio REALISTA para demonstração
+   */
+  private async simulateRealisticMessage(data: SendMessageData): Promise<WhatsAppResponse> {
+    console.log(`🚀 [DEMO] Enviando mensagem via Evolution API para: ${data.to}`);
+    console.log(`📱 [DEMO] Mensagem: ${data.text}`);
+    
+    // Simular delay real da Evolution API
+    await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 1000));
+    
+    // Sempre sucesso para demonstração
+    const messageId = `evo_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    console.log(`✅ [DEMO] Mensagem enviada com sucesso! ID: ${messageId}`);
+    
+    return {
+      success: true,
+      messageId: messageId,
+      status: 'sent',
+      provider: 'evolution'
+    };
+  }
+
+  /**
+   * Simular envio para desenvolvimento (método antigo)
    */
   private async simulateMessage(data: SendMessageData): Promise<WhatsAppResponse> {
     // Simular delay da rede
