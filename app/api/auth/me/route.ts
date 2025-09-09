@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import AuthService from '@/lib/auth';
+import authService from '@/lib/auth';
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,7 +16,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const result = await AuthService.verifyToken(token);
+    const result = await authService.verifyToken(token);
 
     if (!result.valid) {
       const response = NextResponse.json(
