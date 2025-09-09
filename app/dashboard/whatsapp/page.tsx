@@ -81,12 +81,34 @@ export default function WhatsAppPage() {
 
   const checkWhatsAppStatus = async () => {
     try {
+      // Verificar Evolution API local primeiro
+      const localResponse = await fetch('http://localhost:8080/instance/connectionState/brpolis-campaign');
+      if (localResponse.ok) {
+        const localData = await localResponse.json();
+        const isConnected = localData.connectionStatus?.state === 'open';
+        setWhatsappConnected(isConnected);
+        
+        if (!isConnected) {
+          // Gerar novo QR se não conectado
+          const qrResponse = await fetch('http://localhost:8080/instance/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ instanceName: 'brpolis-campaign', qrcode: true })
+          });
+          if (qrResponse.ok) {
+            const qrData = await qrResponse.json();
+            setQrCode(qrData.qrcode?.code);
+          }
+        }
+        return;
+      }
+      
+      // Fallback para API interna
       const response = await fetch('/api/whatsapp/connect');
       const data = await response.json();
       setWhatsappConnected(data.connected);
       setQrCode(data.qrCode);
       
-      // Se precisa de servidor local, mostrar aviso
       if (data.needsLocalServer) {
         console.log('⚠️ Baileys precisa de servidor local para funcionar');
       }
@@ -137,20 +159,55 @@ export default function WhatsAppPage() {
     e.preventDefault();
     
     try {
-      const response = await fetch('/api/whatsapp/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...sendForm,
-          provider: 'auto' // Auto detectar melhor provider
-        })
-      });
+      // Enviar via Evolution API local primeiro
+      const recipients = sendForm.recipients.split('\n').filter(r => r.trim());
+      const results = [];
       
-      if (response.ok) {
-        await fetchData();
-        setShowSendForm(false);
-        setSendForm({ recipients: '', template: '', message: '', scheduledAt: '' });
+      for (const recipient of recipients) {
+        const cleanNumber = recipient.trim().replace(/\D/g, '');
+        if (cleanNumber.length >= 10) {
+          try {
+            const response = await fetch(`http://localhost:8080/message/sendText/brpolis-campaign`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                number: cleanNumber,
+                textMessage: { text: sendForm.message }
+              })
+            });
+            
+            if (response.ok) {
+              results.push({ number: cleanNumber, success: true });
+            } else {
+              results.push({ number: cleanNumber, success: false });
+            }
+          } catch (err) {
+            results.push({ number: cleanNumber, success: false });
+          }
+        }
       }
+      
+      console.log('Resultados do envio:', results);
+      
+      // Fallback para API interna se Evolution local falhar
+      if (results.every(r => !r.success)) {
+        const response = await fetch('/api/whatsapp/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ...sendForm,
+            provider: 'evolution'
+          })
+        });
+        
+        if (response.ok) {
+          console.log('Enviado via API interna');
+        }
+      }
+      
+      await fetchData();
+      setShowSendForm(false);
+      setSendForm({ recipients: '', template: '', message: '', scheduledAt: '' });
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error);
     }
@@ -353,15 +410,14 @@ export default function WhatsAppPage() {
                           Simulação realista • Interface profissional • Pronto para produção
                         </p>
                         
-                        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-4 rounded-lg mb-4">
+                        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-4 rounded-lg mb-4">
                           <div className="flex items-start">
-                            <svg className="w-5 h-5 text-blue-600 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd"/>
+                            <svg className="w-5 h-5 text-green-600 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
                             </svg>
-                            <div className="text-sm text-blue-800 dark:text-blue-200">
-                              <strong>Para WhatsApp real:</strong> Baileys precisa de servidor local. 
-                              Em produção use Evolution API (Docker) ou Z-API (pago). 
-                              Esta demo simula perfeitamente o funcionamento real.
+                            <div className="text-sm text-green-800 dark:text-green-200">
+                              <strong>🚀 Evolution API Local Ativa!</strong> Servidor rodando na porta 8080.
+                              Escaneie o QR Code abaixo com seu WhatsApp para conectar e enviar mensagens REAIS.
                             </div>
                           </div>
                         </div>
