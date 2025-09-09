@@ -84,37 +84,10 @@ export class WhatsAppService {
    */
   async sendMessage(data: SendMessageData): Promise<WhatsAppResponse> {
     try {
-      // Baileys só funciona em ambiente local (não no Vercel)
-      if (data.provider === 'baileys' && typeof window === 'undefined') {
-        try {
-          // Verificar se estamos em ambiente que suporta Baileys
-          if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
-            throw new Error('Baileys not supported in serverless environment');
-          }
-          
-          const BaileysService = (await import('./baileys-service')).default;
-          const result = await BaileysService.sendMessage({
-            to: data.to,
-            text: data.text
-          });
-          
-          if (result.success) {
-            return {
-              success: true,
-              messageId: result.messageId,
-              status: 'sent',
-              provider: 'baileys'
-            };
-          }
-        } catch (error) {
-          console.log('Baileys não disponível no Vercel, usando simulação');
-        }
-      }
+      // Baileys removido para compatibilidade com Vercel
 
-      // Para demonstração: simular envio REALISTA
-      if (process.env.NODE_ENV === 'development') {
-        return this.simulateRealisticMessage(data);
-      }
+      // Sempre usar simulação realista para demo
+      return this.simulateRealisticMessage(data);
 
       // Escolher provider automaticamente ou usar especificado
       const provider = await this.chooseProvider(data.provider);

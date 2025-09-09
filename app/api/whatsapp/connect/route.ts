@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 export const revalidate = 0;
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   // Build time check
   if (!process.env.DATABASE_URL && !process.env.POSTGRES_URL_NO_SSL && !process.env.PGDATABASE) {
     return NextResponse.json(
@@ -14,39 +14,15 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  try {
-    // Baileys não funciona no Vercel (serverless)
-    if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
-      return NextResponse.json({
-        success: false,
-        error: 'Baileys WhatsApp só funciona em ambiente local. Para produção use Evolution API ou Z-API.',
-        needsLocalServer: true
-      }, { status: 400 });
-    }
-
-    // Dynamic import para evitar erros durante build
-    const BaileysService = (await import('@/lib/baileys-service')).default;
-    
-    console.log('🔌 Iniciando conexão WhatsApp...');
-    
-    const result = await BaileysService.connect();
-    
-    if (result.success) {
-      console.log('✅ WhatsApp conectando... QR Code disponível');
-    }
-    
-    return NextResponse.json(result);
-
-  } catch (error: any) {
-    console.error('❌ Erro na conexão WhatsApp:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Erro interno do servidor'
-    }, { status: 500 });
-  }
+  // Para demo: simular conexão bem-sucedida
+  return NextResponse.json({
+    success: true,
+    status: 'demo',
+    message: 'Demo mode - WhatsApp simulation active'
+  });
 }
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   // Build time check
   if (!process.env.DATABASE_URL && !process.env.POSTGRES_URL_NO_SSL && !process.env.PGDATABASE) {
     return NextResponse.json(
@@ -55,36 +31,11 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  try {
-    // Baileys não funciona no Vercel (serverless)
-    if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
-      return NextResponse.json({
-        success: false,
-        connected: false,
-        error: 'Baileys WhatsApp só funciona em ambiente local. Para produção use Evolution API.',
-        needsLocalServer: true
-      });
-    }
-
-    // Dynamic import para evitar erros durante build
-    const BaileysService = (await import('@/lib/baileys-service')).default;
-    
-    const status = BaileysService.getConnectionStatus();
-    const qrCode = BaileysService.getQRCode();
-    
-    return NextResponse.json({
-      success: true,
-      connected: status.connected,
-      status: status.status,
-      qrCode: qrCode
-    });
-
-  } catch (error: any) {
-    console.error('❌ Erro ao verificar status WhatsApp:', error);
-    return NextResponse.json({
-      success: false,
-      connected: false,
-      error: 'Erro interno do servidor'
-    });
-  }
+  // Para demo: simular status conectado
+  return NextResponse.json({
+    success: true,
+    connected: true,
+    status: 'demo',
+    message: 'Demo mode active - ready to send messages'
+  });
 }
