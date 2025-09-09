@@ -3,7 +3,7 @@ import AuthService from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   // Build time check
-  if (process.env.VERCEL_ENV && !process.env.DATABASE_URL) {
+  if (process.env.VERCEL_ENV && !process.env.DATABASE_URL && !process.env.POSTGRES_URL_NO_SSL) {
     return NextResponse.json(
       { success: false, error: 'Build time - login not available' },
       { status: 200 }
