@@ -20,26 +20,13 @@ try {
 
 // Middleware para verificar se é admin
 async function checkAdminAuth(request: NextRequest) {
-  // Build-time protection - don't verify tokens during build
-  if (
-    typeof process !== 'undefined' && (
-      process.env.VERCEL_ENV === 'preview' || 
-      process.env.CI === 'true' ||
-      process.env.NEXT_PHASE === 'phase-production-build' ||
-      process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL ||
-      process.env.VERCEL === '1'
-    )
-  ) {
-    return { authorized: false, error: 'Build time - auth not available' };
-  }
-
-  const token = request.cookies.get('auth_token')?.value;
-  
-  if (!token) {
-    return { authorized: false, error: 'Token não fornecido' };
-  }
-
   try {
+    const token = request.cookies.get('auth_token')?.value;
+    
+    if (!token) {
+      return { authorized: false, error: 'Token não fornecido' };
+    }
+
     const result = await authService.verifyToken(token);
     
     if (!result.valid || !result.user) {
@@ -53,46 +40,16 @@ async function checkAdminAuth(request: NextRequest) {
 
     return { authorized: true, user: result.user };
   } catch (authError) {
-    console.error('Auth error during build:', authError);
+    console.error('Auth error:', authError);
     return { authorized: false, error: 'Auth service not available' };
   }
 }
 
 // GET - Listar usuários (apenas admins)
 export async function GET(request: NextRequest) {
-  // SUPER EARLY BUILD DETECTION - Return immediately without ANY processing
   try {
-    if (
-      !request || 
-      typeof process !== 'undefined' && (
-        process.env.VERCEL_ENV === 'preview' || 
-        process.env.CI === 'true' ||
-        process.env.NEXT_PHASE === 'phase-production-build' ||
-        process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL ||
-        process.env.VERCEL === '1'
-      )
-    ) {
-      return new Response(JSON.stringify({ 
-        success: true,
-        data: { users: [], pagination: { page: 1, limit: 10, total: 0, pages: 0 } }
-      }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      });
-    }
-  } catch (buildError) {
-    return new Response(JSON.stringify({ 
-      success: true,
-      data: { users: [], pagination: { page: 1, limit: 10, total: 0, pages: 0 } }
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-
-  try {
-    // Additional safety check
-    if (!request?.cookies || !request?.url) {
+    // Build time safety check
+    if (!prisma || typeof prisma.user === 'undefined') {
       return NextResponse.json({ 
         success: true,
         data: { users: [], pagination: { page: 1, limit: 10, total: 0, pages: 0 } }
@@ -185,44 +142,12 @@ export async function GET(request: NextRequest) {
 
 // POST - Criar novo usuário (apenas admins)
 export async function POST(request: NextRequest) {
-  // SUPER EARLY BUILD DETECTION - Return immediately without ANY processing
   try {
-    if (
-      !request || 
-      typeof process !== 'undefined' && (
-        process.env.VERCEL_ENV === 'preview' || 
-        process.env.CI === 'true' ||
-        process.env.NEXT_PHASE === 'phase-production-build' ||
-        process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL ||
-        process.env.VERCEL === '1'
-      )
-    ) {
-      return new Response(JSON.stringify({ 
-        success: true,
-        message: 'Build time - user creation not available',
-        user: null
-      }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      });
-    }
-  } catch (buildError) {
-    return new Response(JSON.stringify({ 
-      success: true,
-      message: 'Build error handled',
-      user: null
-    }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-
-  try {
-    // Additional safety check
-    if (!request?.cookies) {
+    // Build time safety check
+    if (!prisma || typeof prisma.user === 'undefined') {
       return NextResponse.json({ 
         success: true,
-        message: 'Request safety check failed',
+        message: 'Build time - user creation not available',
         user: null
       }, { status: 200 });
     }

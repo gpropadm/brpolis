@@ -11,15 +11,18 @@
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-gray-100 dark:bg-gray-800;
+  @apply bg-gray-100;
+  background-color: #e0e0e0;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-gray-400 dark:bg-gray-600 rounded-full;
+  @apply bg-gray-400 rounded-full;
+  background-color: #e0e0e0;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-500 dark:bg-gray-500;
+  @apply bg-gray-500;
+  background-color: #e0e0e0;
 }
 
 /* Animações personalizadas */
@@ -45,10 +48,31 @@
 
 /* Botões personalizados */
 .btn-primary {
-  @apply px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-900 transition-all duration-200;
+  @apply px-4 py-2 text-gray-800 font-medium rounded-lg focus:ring-4 transition-all duration-200;
+  background-color: #f9f3ea;
+  border: 1px solid #e6d7c3;
+}
+
+.btn-primary:hover {
+  background-color: #e6d7c3;
 }
 
 /* Cards personalizados */
 .card {
-  @apply bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 transition-all duration-200;
+  @apply rounded-lg shadow-sm transition-all duration-200;
+  background-color: #f9f3ea;
+  border: 1px solid #e0e0e0;
+}
+
+/* Background personalizados */
+.bg-brpolis-light {
+  background-color: #f9f3ea;
+}
+
+.bg-brpolis-dark {
+  background-color: #e6d7c3;
+}
+
+.bg-brpolis-neutral {
+  background-color: #e0e0e0;
 }
