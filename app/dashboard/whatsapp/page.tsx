@@ -131,7 +131,7 @@ export default function WhatsAppPage() {
           <div className="flex justify-between items-center py-6">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white">WhatsApp Enterprise</h1>
-              <p className="text-gray-600 dark:text-gray-400">Envie milhares de mensagens simultaneamente</p>
+              <p className="text-gray-600 dark:text-gray-400">Envie mensagens reais via Z-API • Pronto para produção</p>
             </div>
             <div className="flex space-x-3">
               <Link href="/dashboard" className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg">
@@ -284,10 +284,10 @@ export default function WhatsAppPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
                     </svg>
                     <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                      Nenhuma mensagem enviada
+                      Pronto para enviar mensagens REAIS
                     </h3>
                     <p className="text-gray-600 dark:text-gray-400 mb-4">
-                      Crie sua primeira campanha de WhatsApp para começar
+                      Configure suas credenciais Z-API no .env.local e teste com números reais
                     </p>
                     <button
                       onClick={() => setShowSendForm(true)}

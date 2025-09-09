@@ -13,6 +13,13 @@ interface EvolutionConfig {
   instanceName: string;
 }
 
+interface ZAPIConfig {
+  instanceId: string;
+  token: string;
+  clientToken: string;
+  url: string;
+}
+
 interface SendMessageData {
   to: string;
   text: string;
@@ -20,7 +27,7 @@ interface SendMessageData {
   templateName?: string;
   templateLanguage?: string;
   templateComponents?: any[];
-  provider?: 'meta' | 'evolution' | 'auto'; // Escolher provider
+  provider?: 'meta' | 'evolution' | 'zapi' | 'auto'; // Escolher provider
 }
 
 interface WhatsAppResponse {
@@ -45,6 +52,7 @@ interface EvolutionInstanceStatus {
 export class WhatsAppService {
   private config: WhatsAppConfig;
   private evolutionConfig: EvolutionConfig;
+  private zapiConfig: ZAPIConfig;
   private baseUrl: string;
 
   constructor() {
@@ -59,6 +67,13 @@ export class WhatsAppService {
       apiUrl: process.env.EVOLUTION_API_URL || 'http://localhost:8080',
       apiKey: process.env.EVOLUTION_API_KEY || '',
       instanceName: process.env.EVOLUTION_INSTANCE_NAME || 'brpolis'
+    };
+
+    this.zapiConfig = {
+      instanceId: process.env.ZAPI_INSTANCE_ID || '',
+      token: process.env.ZAPI_TOKEN || '',
+      clientToken: process.env.ZAPI_CLIENT_TOKEN || '',
+      url: process.env.ZAPI_URL || 'https://api.z-api.io/instances'
     };
     
     this.baseUrl = `https://graph.facebook.com/${this.config.version}/${this.config.phoneNumberId}`;
@@ -77,7 +92,9 @@ export class WhatsAppService {
       // Escolher provider automaticamente ou usar especificado
       const provider = await this.chooseProvider(data.provider);
       
-      if (provider === 'evolution') {
+      if (provider === 'zapi') {
+        return await this.sendViaZAPI(data);
+      } else if (provider === 'evolution') {
         return await this.sendViaEvolution(data);
       } else {
         return await this.sendViaMeta(data);
@@ -194,15 +211,67 @@ export class WhatsAppService {
   }
 
   /**
+   * Envia via Z-API (comercial, fácil de usar)
+   */
+  private async sendViaZAPI(data: SendMessageData): Promise<WhatsAppResponse> {
+    try {
+      const payload = {
+        phone: data.to,
+        message: data.text
+      };
+
+      const response = await fetch(`${this.zapiConfig.url}/${this.zapiConfig.instanceId}/token/${this.zapiConfig.token}/send-text`, {
+        method: 'POST',
+        headers: {
+          'Client-Token': this.zapiConfig.clientToken,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.messageId) {
+        console.error('Z-API Error:', result);
+        return {
+          success: false,
+          error: result.message || 'Erro na Z-API',
+          provider: 'zapi'
+        };
+      }
+
+      return {
+        success: true,
+        messageId: result.messageId,
+        status: 'sent',
+        provider: 'zapi'
+      };
+
+    } catch (error) {
+      console.error('Erro Z-API:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Erro Z-API',
+        provider: 'zapi'
+      };
+    }
+  }
+
+  /**
    * Escolhe o provider automaticamente baseado na configuração e disponibilidade
    */
-  private async chooseProvider(preferredProvider?: string): Promise<'meta' | 'evolution'> {
+  private async chooseProvider(preferredProvider?: string): Promise<'meta' | 'evolution' | 'zapi'> {
     // Se especificado, usar preferência
-    if (preferredProvider === 'meta' || preferredProvider === 'evolution') {
+    if (preferredProvider === 'meta' || preferredProvider === 'evolution' || preferredProvider === 'zapi') {
       return preferredProvider;
     }
 
-    // Lógica automática: priorizar Evolution se configurado e ativo
+    // Lógica automática: priorizar Z-API se configurado
+    if (this.zapiConfig.instanceId && this.zapiConfig.token) {
+      return 'zapi';
+    }
+
+    // Fallback Evolution se configurado e ativo
     if (this.evolutionConfig.apiKey && this.evolutionConfig.apiUrl) {
       const evolutionStatus = await this.checkEvolutionStatus();
       if (evolutionStatus) {
@@ -215,8 +284,8 @@ export class WhatsAppService {
       return 'meta';
     }
 
-    // Padrão Evolution se ambos configurados
-    return 'evolution';
+    // Padrão Z-API
+    return 'zapi';
   }
 
   /**
