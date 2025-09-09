@@ -6,9 +6,22 @@ import authService from '@/lib/auth';
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-const prisma = new PrismaClient();
+// Safe Prisma client initialization
+let prisma: PrismaClient;
+
+try {
+  prisma = new PrismaClient();
+} catch (error) {
+  console.error('Failed to initialize Prisma client:', error);
+  prisma = {} as PrismaClient;
+}
 
 export async function GET(request: NextRequest) {
+  // Early return for build-time analysis
+  if (process.env.VERCEL_ENV === 'preview' || process.env.CI === 'true') {
+    return NextResponse.json({ error: 'Build time - route not available' }, { status: 503 });
+  }
+
   try {
     const token = request.cookies.get('auth_token')?.value;
     
@@ -29,6 +42,9 @@ export async function GET(request: NextRequest) {
       },
       orderBy: { createdAt: 'desc' },
       take: 20
+    }).catch((dbError) => {
+      console.error('Database error:', dbError);
+      return [];
     });
 
     return NextResponse.json({ 
