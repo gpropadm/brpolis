@@ -235,6 +235,10 @@ export default function WhatsAppPage() {
       for (const recipient of recipients) {
         const cleanNumber = recipient.trim().replace(/\D/g, '');
         if (cleanNumber.length >= 10) {
+          let messageStatus = 'PENDING';
+          let success = false;
+          let provider = 'None';
+          
           try {
             // Tentar Z-API primeiro
             const zapiResponse = await fetch(`https://api.z-api.io/instances/3E6FD6EF2451C0253BF61256C14AB051/token/42F3B8BA78AC0BDBE88FEF20/send-text`, {
@@ -250,28 +254,46 @@ export default function WhatsAppPage() {
             });
             
             if (zapiResponse.ok) {
-              results.push({ number: cleanNumber, success: true, provider: 'Z-API' });
-              continue;
+              messageStatus = 'SENT';
+              success = true;
+              provider = 'Z-API';
+            } else {
+              // Fallback para Evolution API local
+              const evolutionResponse = await fetch(`http://localhost:8080/message/sendText/brpolis-campaign`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  number: cleanNumber,
+                  textMessage: { text: sendForm.message }
+                })
+              });
+              
+              if (evolutionResponse.ok) {
+                messageStatus = 'SENT';
+                success = true;
+                provider = 'Evolution';
+              }
             }
-            
-            // Fallback para Evolution API local
-            const evolutionResponse = await fetch(`http://localhost:8080/message/sendText/brpolis-campaign`, {
+          } catch (err) {
+            messageStatus = 'FAILED';
+          }
+          
+          // Salvar no banco independente do resultado
+          try {
+            await fetch('/api/whatsapp/messages', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                number: cleanNumber,
-                textMessage: { text: sendForm.message }
+                recipientPhone: cleanNumber,
+                message: sendForm.message,
+                status: messageStatus
               })
             });
-            
-            if (evolutionResponse.ok) {
-              results.push({ number: cleanNumber, success: true, provider: 'Evolution' });
-            } else {
-              results.push({ number: cleanNumber, success: false, provider: 'None' });
-            }
-          } catch (err) {
-            results.push({ number: cleanNumber, success: false, provider: 'Error' });
+          } catch (saveError) {
+            console.error('Erro ao salvar mensagem:', saveError);
           }
+          
+          results.push({ number: cleanNumber, success, provider });
         }
       }
       
