@@ -111,20 +111,20 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Sidebar */}
-      <aside className={`fixed left-0 top-0 z-40 w-64 h-screen transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700`}>
+      <aside className={`fixed left-0 top-0 z-40 w-64 h-screen transition-transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700 shadow-sm`}>
         <div className="h-full px-3 py-4 overflow-y-auto">
           {/* Logo */}
           <div className="flex items-center mb-5 px-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-lg mr-3">
+            <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center mr-3">
               <span className="text-sm font-bold text-white">BR</span>
             </div>
-            <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">BRPolis</span>
+            <span className="self-center text-xl font-semibold whitespace-nowrap text-gray-900 dark:text-white">BRPolis</span>
           </div>
 
           {/* User Info */}
-          <div className="mb-6 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+          <div className="mb-6 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+              <div className="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center">
                 <span className="text-sm font-medium text-white">
                   {user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
                 </span>
@@ -145,36 +145,36 @@ export default function DashboardPage() {
 
           {/* Navigation */}
           <nav className="space-y-2">
-            <a href="#" className="flex items-center w-full p-2 text-gray-900 bg-gray-100 rounded-lg group dark:text-white dark:bg-gray-700">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <a href="#" className="flex items-center w-full p-2 text-primary-700 bg-primary-50 rounded-lg group dark:text-primary-400 dark:bg-gray-700 border border-primary-200 dark:border-gray-600">
+              <svg className="w-5 h-5 text-primary-600 dark:text-primary-400" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"></path>
               </svg>
               <span className="flex-1 ms-3 whitespace-nowrap">Dashboard</span>
             </a>
 
-            <a href="/dashboard/ia-vertical" className="flex items-center w-full p-2 text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-white dark:hover:bg-gray-700">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <a href="/dashboard/ia-vertical" className="flex items-center w-full p-2 text-gray-700 rounded-lg hover:bg-gray-100 group dark:text-gray-300 dark:hover:bg-gray-700 transition-colors duration-200">
+              <svg className="w-5 h-5 text-gray-500 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
               </svg>
               <span className="flex-1 ms-3 whitespace-nowrap">IA Vertical</span>
             </a>
 
-            <a href="/dashboard/whatsapp" className="flex items-center w-full p-2 text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-white dark:hover:bg-gray-700">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <a href="/dashboard/whatsapp" className="flex items-center w-full p-2 text-gray-700 rounded-lg hover:bg-gray-100 group dark:text-gray-300 dark:hover:bg-gray-700 transition-colors duration-200">
+              <svg className="w-5 h-5 text-gray-500 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path>
               </svg>
               <span className="flex-1 ms-3 whitespace-nowrap">WhatsApp Enterprise</span>
             </a>
 
-            <a href="/dashboard/inteligencia-eleitoral" className="flex items-center w-full p-2 text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-white dark:hover:bg-gray-700">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <a href="/dashboard/inteligencia-eleitoral" className="flex items-center w-full p-2 text-gray-700 rounded-lg hover:bg-gray-100 group dark:text-gray-300 dark:hover:bg-gray-700 transition-colors duration-200">
+              <svg className="w-5 h-5 text-gray-500 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
               </svg>
               <span className="flex-1 ms-3 whitespace-nowrap">Inteligência Eleitoral</span>
             </a>
 
-            <a href="/dashboard/crm" className="flex items-center w-full p-2 text-gray-900 rounded-lg hover:bg-gray-100 group dark:text-white dark:hover:bg-gray-700">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <a href="/dashboard/crm" className="flex items-center w-full p-2 text-gray-700 rounded-lg hover:bg-gray-100 group dark:text-gray-300 dark:hover:bg-gray-700 transition-colors duration-200">
+              <svg className="w-5 h-5 text-gray-500 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 715 5v1H1v-1a5 5 0 015-5z"></path>
               </svg>
               <span className="flex-1 ms-3 whitespace-nowrap">CRM Eleitoral</span>
@@ -226,13 +226,13 @@ export default function DashboardPage() {
         {/* Dashboard Content */}
         <main className="p-4 lg:p-6">
           {/* KPIs Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             {/* Total Eleitores */}
-            <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
+            <div className="p-6 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 dark:bg-gray-800 dark:border-gray-700">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex-shrink-0">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg dark:bg-blue-900 flex items-center justify-center">
-                    <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                  <div className="w-12 h-12 bg-primary-100 rounded-xl dark:bg-primary-900 flex items-center justify-center">
+                    <svg className="w-6 h-6 text-primary-600 dark:text-primary-400" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
                     </svg>
                   </div>
@@ -251,11 +251,11 @@ export default function DashboardPage() {
             </div>
 
             {/* Taxa de Apoio */}
-            <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
+            <div className="p-6 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 dark:bg-gray-800 dark:border-gray-700">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex-shrink-0">
-                  <div className="w-10 h-10 bg-green-100 rounded-lg dark:bg-green-900 flex items-center justify-center">
-                    <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                  <div className="w-12 h-12 bg-green-100 rounded-xl dark:bg-green-900 flex items-center justify-center">
+                    <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path>
                     </svg>
                   </div>
@@ -274,11 +274,11 @@ export default function DashboardPage() {
             </div>
 
             {/* Mensagens WhatsApp */}
-            <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
+            <div className="p-6 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 dark:bg-gray-800 dark:border-gray-700">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex-shrink-0">
-                  <div className="w-10 h-10 bg-purple-100 rounded-lg dark:bg-purple-900 flex items-center justify-center">
-                    <svg className="w-5 h-5 text-purple-600 dark:text-purple-400" fill="currentColor" viewBox="0 0 20 20">
+                  <div className="w-12 h-12 bg-purple-100 rounded-xl dark:bg-purple-900 flex items-center justify-center">
+                    <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path>
                     </svg>
                   </div>
@@ -297,11 +297,11 @@ export default function DashboardPage() {
             </div>
 
             {/* Taxa de Resposta */}
-            <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
+            <div className="p-6 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 dark:bg-gray-800 dark:border-gray-700">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex-shrink-0">
-                  <div className="w-10 h-10 bg-yellow-100 rounded-lg dark:bg-yellow-900 flex items-center justify-center">
-                    <svg className="w-5 h-5 text-yellow-600 dark:text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                  <div className="w-12 h-12 bg-yellow-100 rounded-xl dark:bg-yellow-900 flex items-center justify-center">
+                    <svg className="w-6 h-6 text-yellow-600 dark:text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                   </div>
@@ -321,13 +321,13 @@ export default function DashboardPage() {
           </div>
 
           {/* Welcome Message */}
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-6 mb-6">
+          <div className="bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl p-6 mb-6 shadow-sm">
             <div className="flex items-center">
               <div className="flex-1">
                 <h2 className="text-2xl font-bold text-white mb-2">
                   Bem-vindo ao BRPolis, {user.name}! 🎉
                 </h2>
-                <p className="text-blue-100">
+                <p className="text-primary-100">
                   Seu sistema político está ativo como <strong>{getPoliticalRoleLabel(user.politicalRole)}</strong>. 
                   Gerencie sua campanha com as ferramentas mais avançadas do Brasil.
                 </p>
@@ -344,10 +344,10 @@ export default function DashboardPage() {
 
           {/* Quick Actions */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer">
+            <div className="p-6 bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-gray-800 dark:border-gray-700 hover:shadow-lg hover:border-primary-300 dark:hover:border-primary-600 transition-all duration-200 cursor-pointer">
               <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-lg dark:bg-blue-900 flex items-center justify-center mr-4">
-                  <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                <div className="w-12 h-12 bg-primary-100 rounded-xl dark:bg-primary-900 flex items-center justify-center mr-4">
+                  <svg className="w-6 h-6 text-primary-600 dark:text-primary-400" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path>
                   </svg>
                 </div>
@@ -356,9 +356,9 @@ export default function DashboardPage() {
               <p className="text-gray-600 dark:text-gray-400">Crie uma nova campanha de mensagens em massa.</p>
             </div>
 
-            <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer">
+            <div className="p-6 bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-gray-800 dark:border-gray-700 hover:shadow-lg hover:border-primary-300 dark:hover:border-primary-600 transition-all duration-200 cursor-pointer">
               <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-green-100 rounded-lg dark:bg-green-900 flex items-center justify-center mr-4">
+                <div className="w-12 h-12 bg-green-100 rounded-xl dark:bg-green-900 flex items-center justify-center mr-4">
                   <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
                   </svg>
@@ -368,9 +368,9 @@ export default function DashboardPage() {
               <p className="text-gray-600 dark:text-gray-400">Importe ou cadastre novos eleitores em sua base.</p>
             </div>
 
-            <div className="p-6 bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer">
+            <div className="p-6 bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-gray-800 dark:border-gray-700 hover:shadow-lg hover:border-primary-300 dark:hover:border-primary-600 transition-all duration-200 cursor-pointer">
               <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-purple-100 rounded-lg dark:bg-purple-900 flex items-center justify-center mr-4">
+                <div className="w-12 h-12 bg-purple-100 rounded-xl dark:bg-purple-900 flex items-center justify-center mr-4">
                   <svg className="w-6 h-6 text-purple-600 dark:text-purple-400" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
                   </svg>

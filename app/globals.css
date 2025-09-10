@@ -41,6 +41,84 @@
   animation: fadeIn 0.5s ease-out;
 }
 
+/* Animações flutuantes para login */
+@keyframes float {
+  0% {
+    transform: translateY(0px) rotate(var(--rotation, 0deg));
+  }
+  50% {
+    transform: translateY(-10px) rotate(var(--rotation, 0deg));
+  }
+  100% {
+    transform: translateY(0px) rotate(var(--rotation, 0deg));
+  }
+}
+
+@keyframes float-delay-1 {
+  0% {
+    transform: translateY(-5px) rotate(var(--rotation, 0deg));
+  }
+  50% {
+    transform: translateY(-15px) rotate(var(--rotation, 0deg));
+  }
+  100% {
+    transform: translateY(-5px) rotate(var(--rotation, 0deg));
+  }
+}
+
+@keyframes float-delay-2 {
+  0% {
+    transform: translateY(0px) rotate(var(--rotation, 0deg));
+  }
+  50% {
+    transform: translateY(-12px) rotate(var(--rotation, 0deg));
+  }
+  100% {
+    transform: translateY(0px) rotate(var(--rotation, 0deg));
+  }
+}
+
+@keyframes float-delay-3 {
+  0% {
+    transform: translateY(-3px) rotate(var(--rotation, 0deg));
+  }
+  50% {
+    transform: translateY(-13px) rotate(var(--rotation, 0deg));
+  }
+  100% {
+    transform: translateY(-3px) rotate(var(--rotation, 0deg));
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-delay-1 {
+  animation: float-delay-1 6s ease-in-out infinite;
+  animation-delay: 1.5s;
+}
+
+.animate-float-delay-2 {
+  animation: float-delay-2 6s ease-in-out infinite;
+  animation-delay: 3s;
+}
+
+.animate-float-delay-3 {
+  animation: float-delay-3 6s ease-in-out infinite;
+  animation-delay: 4.5s;
+}
+
+/* Shadow customizada */
+.shadow-3xl {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Perspective para 3D */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
 /* Gradientes personalizados */
 .gradient-primary {
   background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
