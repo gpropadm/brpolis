@@ -11,20 +11,21 @@ export async function POST(request: NextRequest) {
     // Configurar webhook na Evolution API
     const webhookUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/webhooks/evolution`;
     
+    // Adicionar eventos baseados na configuração
+    const events: string[] = [];
+    if (webhookConfig.onSend) events.push('SEND_MESSAGE');
+    if (webhookConfig.chatPresence) events.push('PRESENCE_UPDATE');
+    if (webhookConfig.onDisconnect) events.push('CONNECTION_UPDATE');
+    if (webhookConfig.messageStatus) events.push('MESSAGES_UPDATE');
+    if (webhookConfig.onReceive) events.push('MESSAGES_UPSERT');
+    if (webhookConfig.onConnect) events.push('CONNECTION_UPDATE');
+
     const webhookData = {
       webhook: {
         url: webhookUrl,
-        events: []
+        events: events
       }
     };
-
-    // Adicionar eventos baseados na configuração
-    if (webhookConfig.onSend) webhookData.webhook.events.push('SEND_MESSAGE');
-    if (webhookConfig.chatPresence) webhookData.webhook.events.push('PRESENCE_UPDATE');
-    if (webhookConfig.onDisconnect) webhookData.webhook.events.push('CONNECTION_UPDATE');
-    if (webhookConfig.messageStatus) webhookData.webhook.events.push('MESSAGES_UPDATE');
-    if (webhookConfig.onReceive) webhookData.webhook.events.push('MESSAGES_UPSERT');
-    if (webhookConfig.onConnect) webhookData.webhook.events.push('CONNECTION_UPDATE');
 
     // Configurar webhook na Evolution API
     const webhookResponse = await fetch(`${EVOLUTION_API_URL}/webhook/set/${INSTANCE_NAME}`, {
@@ -107,7 +108,8 @@ export async function GET(request: NextRequest) {
     const whatsappSettings = {
       autoRejectCalls: settings?.rejectCall || false,
       autoReadMessages: settings?.readMessages || false,
-      autoReadStatus: settings?.readStatus || false
+      autoReadStatus: settings?.readStatus || false,
+      rejectCallMessage: settings?.msgCall || 'Chamadas não são aceitas. Use apenas mensagens de texto.'
     };
 
     return NextResponse.json({
