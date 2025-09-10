@@ -346,10 +346,10 @@ export default function WhatsAppPage() {
   };
 
   const totalMessages = messages.length;
-  const sentMessages = messages.filter(m => m.status === 'SENT' || m.status === 'DELIVERED' || m.status === 'READ').length;
-  const deliveredMessages = messages.filter(m => m.status === 'DELIVERED' || m.status === 'READ').length;
+  const sentMessages = messages.filter(m => ['SENT', 'DELIVERED', 'READ'].includes(m.status)).length;
+  const deliveredMessages = messages.filter(m => ['DELIVERED', 'READ'].includes(m.status)).length;
   const readMessages = messages.filter(m => m.status === 'READ').length;
-  const totalCost = messages.reduce((sum, m) => sum + m.cost, 0);
+  const totalCost = messages.reduce((sum, m) => sum + (m.cost || 0), 0);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -388,7 +388,7 @@ export default function WhatsAppPage() {
               </div>
               <div className="ml-4">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  {totalMessages}
+                  {sentMessages}
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400">Total Enviadas</p>
               </div>

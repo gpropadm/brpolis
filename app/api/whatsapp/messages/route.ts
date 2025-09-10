@@ -71,16 +71,21 @@ export async function POST(request: NextRequest) {
     const { recipientPhone, message, status = 'PENDING' } = await request.json();
 
     // Salvar mensagem no banco
+    // Se foi enviada com sucesso, simular entrega após 2-5 segundos
+    const finalStatus = status === 'SENT' ? 'DELIVERED' : status;
+    const now = new Date();
+    const deliveredTime = status === 'SENT' ? new Date(now.getTime() + 3000) : null; // +3 segundos
+
     const savedMessage = await prisma.whatsAppMessage.create({
       data: {
         candidateId: 'demo-candidate', // ID fixo para demo
         recipientPhone,
         message,
-        status,
+        status: finalStatus,
         cost: 0.05, // Custo fixo por mensagem
-        sentAt: status !== 'PENDING' ? new Date() : null,
-        deliveredAt: status === 'DELIVERED' || status === 'READ' ? new Date() : null,
-        readAt: status === 'READ' ? new Date() : null
+        sentAt: finalStatus !== 'PENDING' ? now : null,
+        deliveredAt: ['DELIVERED', 'READ'].includes(finalStatus) ? (deliveredTime || now) : null,
+        readAt: finalStatus === 'READ' ? new Date(now.getTime() + 10000) : null // +10 segundos para leitura
       }
     });
 
