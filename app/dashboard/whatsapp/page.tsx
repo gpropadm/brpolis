@@ -18,7 +18,18 @@ interface WhatsAppMessage {
 interface Campaign {
   id: string;
   name: string;
+  description: string;
   status: string;
+  createdAt: string;
+  stats: {
+    total: number;
+    sent: number;
+    delivered: number;
+    read: number;
+    cost: number;
+    deliveryRate: number;
+    readRate: number;
+  };
 }
 
 interface MessageTemplate {
@@ -33,7 +44,7 @@ export default function WhatsAppPage() {
   const [templates, setTemplates] = useState<MessageTemplate[]>([]);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('messages');
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [showSendForm, setShowSendForm] = useState(false);
   const [whatsappConnected, setWhatsappConnected] = useState(false);
   const [qrCode, setQrCode] = useState<string | null>(null);
@@ -59,12 +70,32 @@ export default function WhatsAppPage() {
     autoReadStatus: false,
     rejectCallMessage: 'Chamadas não são aceitas. Use apenas mensagens de texto.'
   });
+  const [showCampaignForm, setShowCampaignForm] = useState(false);
+  const [showImportForm, setShowImportForm] = useState(false);
+  const [importedContacts, setImportedContacts] = useState<any[]>([]);
+  const [selectedCampaign, setSelectedCampaign] = useState<string | null>(null);
+  const [campaignForm, setCampaignForm] = useState({
+    name: '',
+    description: '',
+    message: '',
+    scheduledAt: ''
+  });
+  const [groups, setGroups] = useState<any[]>([]);
+  const [voters, setVoters] = useState<any[]>([]);
+  const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
+  const [totalContacts, setTotalContacts] = useState(0);
 
   useEffect(() => {
     fetchData();
     checkWhatsAppStatus();
     loadCurrentConfig();
   }, []);
+
+  useEffect(() => {
+    if (selectedCampaign) {
+      fetchData(); // Recarregar mensagens quando mudar campanha
+    }
+  }, [selectedCampaign]);
 
   const loadCurrentConfig = async () => {
     try {
@@ -112,25 +143,43 @@ export default function WhatsAppPage() {
 
   const fetchData = async () => {
     try {
-      const [messagesRes, templatesRes, campaignsRes] = await Promise.all([
-        fetch('/api/whatsapp/messages'),
+      const [campaignsRes, templatesRes, groupsRes, votersRes] = await Promise.all([
+        fetch('/api/whatsapp/campaigns'),
         fetch('/api/whatsapp/templates'),
-        fetch('/api/campaigns')
+        fetch('/api/whatsapp/groups'),
+        fetch('/api/voters?limit=10') // Apenas alguns para preview
       ]);
       
-      if (messagesRes.ok) {
-        const messagesData = await messagesRes.json();
-        setMessages(messagesData.messages || []);
+      if (campaignsRes.ok) {
+        const campaignsData = await campaignsRes.json();
+        setCampaigns(campaignsData.campaigns || []);
       }
       
       if (templatesRes.ok) {
         const templatesData = await templatesRes.json();
         setTemplates(templatesData.templates || []);
       }
-      
-      if (campaignsRes.ok) {
-        const campaignsData = await campaignsRes.json();
-        setCampaigns(campaignsData.campaigns || []);
+
+      if (groupsRes.ok) {
+        const groupsData = await groupsRes.json();
+        setGroups(groupsData.groups || []);
+      }
+
+      if (votersRes.ok) {
+        const votersData = await votersRes.json();
+        setVoters(votersData.voters || []);
+        setTotalContacts(votersData.pagination?.totalRecords || 0);
+      }
+
+      // Buscar mensagens da campanha selecionada
+      if (selectedCampaign) {
+        const messagesRes = await fetch(`/api/whatsapp/messages?campaignId=${selectedCampaign}`);
+        if (messagesRes.ok) {
+          const messagesData = await messagesRes.json();
+          setMessages(messagesData.messages || []);
+        }
+      } else {
+        setMessages([]);
       }
     } catch (error) {
       console.error('Erro ao carregar dados do WhatsApp:', error);
@@ -486,14 +535,34 @@ export default function WhatsAppPage() {
           <div className="border-b border-gray-200 dark:border-gray-700">
             <nav className="-mb-px flex space-x-8 px-6">
               <button
-                onClick={() => setActiveTab('messages')}
+                onClick={() => setActiveTab('dashboard')}
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'messages'
+                  activeTab === 'dashboard'
                     ? 'border-blue-500 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                Mensagens Enviadas
+                📊 Dashboard
+              </button>
+              <button
+                onClick={() => setActiveTab('campaigns')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'campaigns'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                📁 Campanhas
+              </button>
+              <button
+                onClick={() => setActiveTab('groups')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'groups'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                👥 Grupos
               </button>
               <button
                 onClick={() => setActiveTab('templates')}
@@ -503,17 +572,7 @@ export default function WhatsAppPage() {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                Templates
-              </button>
-              <button
-                onClick={() => setActiveTab('analytics')}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'analytics'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                Analytics
+                📝 Templates
               </button>
               <button
                 onClick={() => setActiveTab('config')}
@@ -523,12 +582,196 @@ export default function WhatsAppPage() {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                Configurações
+                ⚙️ Configurações
               </button>
             </nav>
           </div>
 
           <div className="p-6">
+            {activeTab === 'dashboard' && (
+              <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                    Dashboard Político - WhatsApp
+                  </h3>
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={() => setActiveTab('campaigns')}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+                    >
+                      📁 Criar Campanha
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('groups')}
+                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
+                    >
+                      👥 Gerenciar Grupos
+                    </button>
+                  </div>
+                </div>
+
+                {/* Overview Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                  <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-6 rounded-lg text-white" style={{backgroundColor: '#f9f3ea', background: 'linear-gradient(to right, #f9f3ea, #e6dac9)'}}>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-blue-100" style={{color: '#8b7355'}}>Total de Eleitores</p>
+                        <p className="text-3xl font-bold" style={{color: '#5a4735'}}>{totalContacts.toLocaleString()}</p>
+                      </div>
+                      <div className="text-blue-200" style={{color: '#8b7355'}}>
+                        <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gradient-to-r from-green-500 to-green-600 p-6 rounded-lg text-white" style={{backgroundColor: '#f9f3ea', background: 'linear-gradient(to right, #f9f3ea, #e6dac9)'}}>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-green-100" style={{color: '#8b7355'}}>Grupos Ativos</p>
+                        <p className="text-3xl font-bold" style={{color: '#5a4735'}}>{groups.length}</p>
+                      </div>
+                      <div className="text-green-200" style={{color: '#8b7355'}}>
+                        <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd"/>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gradient-to-r from-purple-500 to-purple-600 p-6 rounded-lg text-white" style={{backgroundColor: '#f9f3ea', background: 'linear-gradient(to right, #f9f3ea, #e6dac9)'}}>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-purple-100" style={{color: '#8b7355'}}>Campanhas</p>
+                        <p className="text-3xl font-bold" style={{color: '#5a4735'}}>{campaigns.length}</p>
+                      </div>
+                      <div className="text-purple-200" style={{color: '#8b7355'}}>
+                        <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M2 5a2 2 0 012-2h8a2 2 0 012 2v10a2 2 0 002 2H4a2 2 0 01-2-2V5zm3 1h6v4H5V6zm6 6H5v2h6v-2z" clipRule="evenodd"/>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gradient-to-r from-orange-500 to-orange-600 p-6 rounded-lg text-white" style={{backgroundColor: '#f9f3ea', background: 'linear-gradient(to right, #f9f3ea, #e6dac9)'}}>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-orange-100" style={{color: '#8b7355'}}>Templates</p>
+                        <p className="text-3xl font-bold" style={{color: '#5a4735'}}>{templates.length}</p>
+                      </div>
+                      <div className="text-orange-200" style={{color: '#8b7355'}}>
+                        <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd"/>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Fluxo de Trabalho */}
+                <div className="bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-800 dark:to-blue-900 p-6 rounded-lg">
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                    🗳️ Fluxo de Trabalho Político
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="text-center">
+                      <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <span className="text-white font-bold">1</span>
+                      </div>
+                      <h5 className="font-medium text-gray-900 dark:text-white">Cadastrar Eleitores</h5>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Importar ou cadastrar base de dados</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <span className="text-white font-bold">2</span>
+                      </div>
+                      <h5 className="font-medium text-gray-900 dark:text-white">Criar Grupos</h5>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Segmentar por região, interesse, etc.</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <span className="text-white font-bold">3</span>
+                      </div>
+                      <h5 className="font-medium text-gray-900 dark:text-white">Criar Campanha</h5>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Selecionar grupos e template</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <span className="text-white font-bold">4</span>
+                      </div>
+                      <h5 className="font-medium text-gray-900 dark:text-white">Enviar WhatsApp</h5>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Disparo em massa organizado</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Preview dos Grupos */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-4">👥 Grupos Principais</h4>
+                    <div className="space-y-3">
+                      {groups.slice(0, 4).map((group) => (
+                        <div key={group.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                          <div className="flex items-center space-x-3">
+                            <div 
+                              className="w-4 h-4 rounded-full"
+                              style={{ backgroundColor: group.color }}
+                            ></div>
+                            <div>
+                              <p className="font-medium text-gray-900 dark:text-white">{group.name}</p>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">{group.contactCount.toLocaleString()} contatos</p>
+                            </div>
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {group.tags.slice(0, 2).map((tag: string) => (
+                              <span key={tag} className="inline-block bg-gray-200 dark:bg-gray-600 px-2 py-1 rounded text-xs mr-1">
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-4">📊 Últimas Campanhas</h4>
+                    <div className="space-y-3">
+                      {campaigns.slice(0, 4).map((campaign) => (
+                        <div key={campaign.id} className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                          <div className="flex justify-between items-start mb-2">
+                            <h5 className="font-medium text-gray-900 dark:text-white">{campaign.name}</h5>
+                            <span className={`px-2 py-1 text-xs rounded-full ${
+                              campaign.status === 'ACTIVE' ? 'bg-green-100 text-green-800' :
+                              campaign.status === 'COMPLETED' ? 'bg-blue-100 text-blue-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}>
+                              {campaign.status}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-3 gap-4 text-sm">
+                            <div>
+                              <p className="text-gray-600 dark:text-gray-400">Enviadas</p>
+                              <p className="font-semibold">{campaign.stats?.sent || 0}</p>
+                            </div>
+                            <div>
+                              <p className="text-gray-600 dark:text-gray-400">Entregues</p>
+                              <p className="font-semibold">{campaign.stats?.deliveryRate || 0}%</p>
+                            </div>
+                            <div>
+                              <p className="text-gray-600 dark:text-gray-400">Lidas</p>
+                              <p className="font-semibold">{campaign.stats?.readRate || 0}%</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {activeTab === 'messages' && (
               <div>
                 {loading ? (
@@ -928,9 +1171,9 @@ export default function WhatsAppPage() {
                   >
                     {loading ? (
                       <>
-                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <svg className="-ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 818-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
                         Salvando...
                       </>
