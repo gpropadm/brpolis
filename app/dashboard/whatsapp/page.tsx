@@ -44,11 +44,71 @@ export default function WhatsAppPage() {
     message: '',
     scheduledAt: ''
   });
+  const [webhookConfig, setWebhookConfig] = useState({
+    onSend: false,
+    chatPresence: false,
+    onDisconnect: false,
+    messageStatus: false,
+    onReceive: false,
+    notifyMyMessages: false,
+    onConnect: false
+  });
+  const [whatsappSettings, setWhatsappSettings] = useState({
+    autoRejectCalls: false,
+    autoReadMessages: false,
+    autoReadStatus: false,
+    rejectCallMessage: 'Chamadas não são aceitas. Use apenas mensagens de texto.'
+  });
 
   useEffect(() => {
     fetchData();
     checkWhatsAppStatus();
+    loadCurrentConfig();
   }, []);
+
+  const loadCurrentConfig = async () => {
+    try {
+      const response = await fetch('/api/whatsapp/webhook-config');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setWebhookConfig(data.webhookConfig);
+          setWhatsappSettings(data.whatsappSettings);
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao carregar configurações:', error);
+    }
+  };
+
+  const saveConfiguration = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/whatsapp/webhook-config', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          webhookConfig,
+          whatsappSettings
+        })
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        alert('✅ Configurações salvas com sucesso!\n\nWebhooks configurados na Evolution API e todas as configurações do WhatsApp foram aplicadas.');
+      } else {
+        alert('❌ Erro ao salvar configurações: ' + data.error);
+      }
+    } catch (error) {
+      console.error('Erro ao salvar configurações:', error);
+      alert('❌ Erro ao salvar configurações. Verifique a conexão com a Evolution API.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -414,6 +474,16 @@ export default function WhatsAppPage() {
               >
                 Analytics
               </button>
+              <button
+                onClick={() => setActiveTab('config')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'config'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Configurações
+              </button>
             </nav>
           </div>
 
@@ -615,6 +685,219 @@ export default function WhatsAppPage() {
                     </div>
                   </div>
                 )}
+              </div>
+            )}
+
+            {activeTab === 'config' && (
+              <div className="space-y-8">
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-6">
+                    Configure webhooks
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                    Configurar webhooks para sua instância permite receber os eventos dela.
+                  </p>
+                  
+                  <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="flex items-center justify-between">
+                        <label className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={webhookConfig.onSend}
+                            onChange={(e) => setWebhookConfig({...webhookConfig, onSend: e.target.checked})}
+                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          />
+                          <div className="ml-2">
+                            <span className="text-sm text-gray-700 dark:text-gray-300">Ao enviar</span>
+                            <span className="block text-xs text-gray-500 dark:text-gray-400">SEND_MESSAGE</span>
+                          </div>
+                        </label>
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <label className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={webhookConfig.chatPresence}
+                            onChange={(e) => setWebhookConfig({...webhookConfig, chatPresence: e.target.checked})}
+                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          />
+                          <div className="ml-2">
+                            <span className="text-sm text-gray-700 dark:text-gray-300">Presença do chat</span>
+                            <span className="block text-xs text-gray-500 dark:text-gray-400">PRESENCE_UPDATE</span>
+                          </div>
+                        </label>
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <label className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={webhookConfig.onDisconnect}
+                            onChange={(e) => setWebhookConfig({...webhookConfig, onDisconnect: e.target.checked})}
+                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          />
+                          <div className="ml-2">
+                            <span className="text-sm text-gray-700 dark:text-gray-300">Ao desconectar</span>
+                            <span className="block text-xs text-gray-500 dark:text-gray-400">CONNECTION_UPDATE</span>
+                          </div>
+                        </label>
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <label className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={webhookConfig.messageStatus}
+                            onChange={(e) => setWebhookConfig({...webhookConfig, messageStatus: e.target.checked})}
+                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          />
+                          <div className="ml-2">
+                            <span className="text-sm text-gray-700 dark:text-gray-300">Receber status da mensagem</span>
+                            <span className="block text-xs text-gray-500 dark:text-gray-400">MESSAGES_UPDATE</span>
+                          </div>
+                        </label>
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <label className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={webhookConfig.onReceive}
+                            onChange={(e) => setWebhookConfig({...webhookConfig, onReceive: e.target.checked})}
+                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          />
+                          <div className="ml-2">
+                            <span className="text-sm text-gray-700 dark:text-gray-300">Ao receber</span>
+                            <span className="block text-xs text-gray-500 dark:text-gray-400">MESSAGES_UPSERT</span>
+                          </div>
+                        </label>
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <label className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={webhookConfig.notifyMyMessages}
+                            onChange={(e) => setWebhookConfig({...webhookConfig, notifyMyMessages: e.target.checked})}
+                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          />
+                          <div className="ml-2">
+                            <span className="text-sm text-gray-700 dark:text-gray-300">Notificar as enviadas por mim também</span>
+                            <span className="block text-xs text-gray-500 dark:text-gray-400">CUSTOM_SETTING</span>
+                          </div>
+                        </label>
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <label className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={webhookConfig.onConnect}
+                            onChange={(e) => setWebhookConfig({...webhookConfig, onConnect: e.target.checked})}
+                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          />
+                          <div className="ml-2">
+                            <span className="text-sm text-gray-700 dark:text-gray-300">Ao conectar</span>
+                            <span className="block text-xs text-gray-500 dark:text-gray-400">CONNECTION_UPDATE</span>
+                          </div>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-6">
+                    Configurações do whatsapp
+                  </h3>
+                  
+                  <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <label className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={whatsappSettings.autoRejectCalls}
+                            onChange={(e) => setWhatsappSettings({...whatsappSettings, autoRejectCalls: e.target.checked})}
+                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          />
+                          <div className="ml-2">
+                            <span className="text-sm text-gray-700 dark:text-gray-300">Rejeitar chamadas automático</span>
+                            <span className="block text-xs text-gray-500 dark:text-gray-400">rejectCall</span>
+                          </div>
+                        </label>
+                      </div>
+                      
+                      {whatsappSettings.autoRejectCalls && (
+                        <div className="pl-6">
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Configure uma mensagem como resposta
+                            <span className="block text-xs text-gray-500 dark:text-gray-400">msgCall</span>
+                          </label>
+                          <textarea
+                            value={whatsappSettings.rejectCallMessage}
+                            onChange={(e) => setWhatsappSettings({...whatsappSettings, rejectCallMessage: e.target.value})}
+                            placeholder="Mensagem enviada automaticamente quando uma chamada for rejeitada"
+                            rows={3}
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-600 dark:text-white text-sm"
+                          />
+                        </div>
+                      )}
+                      
+                      <div className="flex items-center justify-between">
+                        <label className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={whatsappSettings.autoReadMessages}
+                            onChange={(e) => setWhatsappSettings({...whatsappSettings, autoReadMessages: e.target.checked})}
+                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          />
+                          <div className="ml-2">
+                            <span className="text-sm text-gray-700 dark:text-gray-300">Ler mensagens automático</span>
+                            <span className="block text-xs text-gray-500 dark:text-gray-400">readMessages</span>
+                          </div>
+                        </label>
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <label className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={whatsappSettings.autoReadStatus}
+                            onChange={(e) => setWhatsappSettings({...whatsappSettings, autoReadStatus: e.target.checked})}
+                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          />
+                          <div className="ml-2">
+                            <span className="text-sm text-gray-700 dark:text-gray-300">Ler status automaticamente</span>
+                            <span className="block text-xs text-gray-500 dark:text-gray-400">readStatus</span>
+                          </div>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <button
+                    onClick={saveConfiguration}
+                    disabled={loading}
+                    className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white px-6 py-2 rounded-lg flex items-center"
+                  >
+                    {loading ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Salvando...
+                      </>
+                    ) : (
+                      'Salvar'
+                    )}
+                  </button>
+                </div>
               </div>
             )}
           </div>
