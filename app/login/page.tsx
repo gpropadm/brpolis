@@ -51,91 +51,123 @@ export default function LoginPage() {
           {/* Central layout with overlapping photos */}
           <div className="grid grid-cols-4 gap-2">
             {/* Row 1 */}
-            <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300 animate-float">
-              <div className="w-full h-full flex items-center justify-center">
-                <span className="text-lg font-bold text-white">AJ</span>
-              </div>
+            <div className="w-24 h-24 rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300 animate-float">
+              <img 
+                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face" 
+                alt="Jovem político" 
+                className="w-full h-full object-cover"
+              />
             </div>
-            <div className="w-24 h-24 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300 animate-float-delay-1">
-              <div className="w-full h-full flex items-center justify-center">
-                <span className="text-lg font-bold text-white">CM</span>
-              </div>
+            <div className="w-24 h-24 rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300 animate-float-delay-1">
+              <img 
+                src="https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face" 
+                alt="Jovem política" 
+                className="w-full h-full object-cover"
+              />
             </div>
-            <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300 animate-float-delay-2">
-              <div className="w-full h-full flex items-center justify-center">
-                <span className="text-lg font-bold text-white">LS</span>
-              </div>
+            <div className="w-24 h-24 rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300 animate-float-delay-2">
+              <img 
+                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face" 
+                alt="Jovem político" 
+                className="w-full h-full object-cover"
+              />
             </div>
-            <div className="w-24 h-24 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300 animate-float">
-              <div className="w-full h-full flex items-center justify-center">
-                <span className="text-lg font-bold text-white">RF</span>
-              </div>
+            <div className="w-24 h-24 rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300 animate-float">
+              <img 
+                src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face" 
+                alt="Jovem política" 
+                className="w-full h-full object-cover"
+              />
             </div>
 
             {/* Row 2 */}
-            <div className="w-24 h-24 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300 animate-float-delay-3">
-              <div className="w-full h-full flex items-center justify-center">
-                <span className="text-lg font-bold text-white">MO</span>
-              </div>
+            <div className="w-24 h-24 rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300 animate-float-delay-3">
+              <img 
+                src="https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=150&h=150&fit=crop&crop=face" 
+                alt="Jovem político" 
+                className="w-full h-full object-cover"
+              />
             </div>
-            <div className="w-24 h-24 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300 animate-float-delay-1">
-              <div className="w-full h-full flex items-center justify-center">
-                <span className="text-lg font-bold text-white">JS</span>
-              </div>
+            <div className="w-24 h-24 rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300 animate-float-delay-1">
+              <img 
+                src="https://images.unsplash.com/photo-1534751516642-a1af1ef26a56?w=150&h=150&fit=crop&crop=face" 
+                alt="Jovem política" 
+                className="w-full h-full object-cover"
+              />
             </div>
-            <div className="w-24 h-24 bg-gradient-to-br from-pink-500 to-pink-600 rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300 animate-float">
-              <div className="w-full h-full flex items-center justify-center">
-                <span className="text-lg font-bold text-white">PC</span>
-              </div>
+            <div className="w-24 h-24 rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300 animate-float">
+              <img 
+                src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face" 
+                alt="Jovem político" 
+                className="w-full h-full object-cover"
+              />
             </div>
-            <div className="w-24 h-24 bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300 animate-float-delay-2">
-              <div className="w-full h-full flex items-center justify-center">
-                <span className="text-lg font-bold text-white">BM</span>
-              </div>
+            <div className="w-24 h-24 rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300 animate-float-delay-2">
+              <img 
+                src="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=150&h=150&fit=crop&crop=face" 
+                alt="Jovem política" 
+                className="w-full h-full object-cover"
+              />
             </div>
 
             {/* Row 3 */}
-            <div className="w-24 h-24 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300 animate-float-delay-3">
-              <div className="w-full h-full flex items-center justify-center">
-                <span className="text-lg font-bold text-white">TA</span>
-              </div>
+            <div className="w-24 h-24 rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300 animate-float-delay-3">
+              <img 
+                src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&h=150&fit=crop&crop=face" 
+                alt="Jovem político" 
+                className="w-full h-full object-cover"
+              />
             </div>
-            <div className="w-24 h-24 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300 animate-float">
-              <div className="w-full h-full flex items-center justify-center">
-                <span className="text-lg font-bold text-white">LR</span>
-              </div>
+            <div className="w-24 h-24 rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300 animate-float">
+              <img 
+                src="https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?w=150&h=150&fit=crop&crop=face" 
+                alt="Jovem política" 
+                className="w-full h-full object-cover"
+              />
             </div>
-            <div className="w-24 h-24 bg-gradient-to-br from-violet-500 to-violet-600 rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300 animate-float-delay-1">
-              <div className="w-full h-full flex items-center justify-center">
-                <span className="text-lg font-bold text-white">GA</span>
-              </div>
+            <div className="w-24 h-24 rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300 animate-float-delay-1">
+              <img 
+                src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=150&h=150&fit=crop&crop=face" 
+                alt="Jovem político" 
+                className="w-full h-full object-cover"
+              />
             </div>
-            <div className="w-24 h-24 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300 animate-float-delay-2">
-              <div className="w-full h-full flex items-center justify-center">
-                <span className="text-lg font-bold text-white">JM</span>
-              </div>
+            <div className="w-24 h-24 rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300 animate-float-delay-2">
+              <img 
+                src="https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=150&h=150&fit=crop&crop=face" 
+                alt="Jovem política" 
+                className="w-full h-full object-cover"
+              />
             </div>
 
             {/* Row 4 */}
-            <div className="w-24 h-24 bg-gradient-to-br from-rose-500 to-rose-600 rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300 animate-float">
-              <div className="w-full h-full flex items-center justify-center">
-                <span className="text-lg font-bold text-white">AS</span>
-              </div>
+            <div className="w-24 h-24 rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300 animate-float">
+              <img 
+                src="https://images.unsplash.com/photo-1507591064344-4c6ce005b128?w=150&h=150&fit=crop&crop=face" 
+                alt="Jovem político" 
+                className="w-full h-full object-cover"
+              />
             </div>
-            <div className="w-24 h-24 bg-gradient-to-br from-slate-500 to-slate-600 rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300 animate-float-delay-3">
-              <div className="w-full h-full flex items-center justify-center">
-                <span className="text-lg font-bold text-white">RG</span>
-              </div>
+            <div className="w-24 h-24 rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300 animate-float-delay-3">
+              <img 
+                src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&h=150&fit=crop&crop=face" 
+                alt="Jovem política" 
+                className="w-full h-full object-cover"
+              />
             </div>
-            <div className="w-24 h-24 bg-gradient-to-br from-amber-500 to-amber-600 rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300 animate-float-delay-1">
-              <div className="w-full h-full flex items-center justify-center">
-                <span className="text-lg font-bold text-white">MD</span>
-              </div>
+            <div className="w-24 h-24 rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300 animate-float-delay-1">
+              <img 
+                src="https://images.unsplash.com/photo-1522556189639-b150ed9c4330?w=150&h=150&fit=crop&crop=face" 
+                alt="Jovem político" 
+                className="w-full h-full object-cover"
+              />
             </div>
-            <div className="w-24 h-24 bg-gradient-to-br from-lime-500 to-lime-600 rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300 animate-float">
-              <div className="w-full h-full flex items-center justify-center">
-                <span className="text-lg font-bold text-white">FH</span>
-              </div>
+            <div className="w-24 h-24 rounded-2xl overflow-hidden shadow-lg transform hover:scale-105 transition-all duration-300 animate-float">
+              <img 
+                src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=150&h=150&fit=crop&crop=face" 
+                alt="Jovem política" 
+                className="w-full h-full object-cover"
+              />
             </div>
           </div>
 
