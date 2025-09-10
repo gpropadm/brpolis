@@ -254,10 +254,14 @@ export default function WhatsAppPage() {
             });
             
             if (zapiResponse.ok) {
+              const zapiData = await zapiResponse.json();
+              console.log('✅ Z-API sucesso:', zapiData);
               messageStatus = 'SENT';
               success = true;
               provider = 'Z-API';
             } else {
+              const zapiError = await zapiResponse.text();
+              console.log('❌ Z-API falhou:', zapiResponse.status, zapiError);
               // Fallback para Evolution API local
               const evolutionResponse = await fetch(`http://localhost:8080/message/sendText/brpolis-campaign`, {
                 method: 'POST',
@@ -269,9 +273,14 @@ export default function WhatsAppPage() {
               });
               
               if (evolutionResponse.ok) {
+                const evolutionData = await evolutionResponse.json();
+                console.log('✅ Evolution sucesso:', evolutionData);
                 messageStatus = 'SENT';
                 success = true;
                 provider = 'Evolution';
+              } else {
+                const evolutionError = await evolutionResponse.text();
+                console.log('❌ Evolution falhou:', evolutionResponse.status, evolutionError);
               }
             }
           } catch (err) {
@@ -298,6 +307,16 @@ export default function WhatsAppPage() {
       }
       
       console.log('Resultados do envio:', results);
+      
+      // Mostrar resultado para o usuário
+      const successCount = results.filter(r => r.success).length;
+      const totalCount = results.length;
+      
+      if (successCount > 0) {
+        alert(`✅ ${successCount}/${totalCount} mensagens enviadas com sucesso!\n\n${results.map(r => `${r.number}: ${r.success ? '✅ ' + r.provider : '❌ Falhou'}`).join('\n')}`);
+      } else {
+        alert(`❌ Nenhuma mensagem foi enviada!\n\nVerifique:\n• WhatsApp conectado?\n• Números corretos?\n• Evolution API rodando?\n\nDetalhes no console (F12)`);
+      }
       
       // Fallback para API interna se todos falharem
       if (results.every(r => !r.success)) {
